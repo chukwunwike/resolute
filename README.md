@@ -6,6 +6,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Typed](https://img.shields.io/badge/typed-yes-brightgreen.svg)](https://peps.python.org/pep-0561/)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)]()
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://chukwunwike.github.io/resolute/)
+
+📖 **[Full Documentation](https://chukwunwike.github.io/resolute/)**
 
 ---
 

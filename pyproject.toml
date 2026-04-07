@@ -46,6 +46,8 @@ dev = [
     "fastapi",
     "httpx",
     "pydantic",
+    "mkdocs",
+    "mkdocstrings[python]",
 ]
 
 [tool.pytest.ini_options]
