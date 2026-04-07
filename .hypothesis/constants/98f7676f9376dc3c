@@ -1,0 +1,4 @@
+# file: C:\Users\chuks\Downloads\resolute\resolute\_option.py
+# hypothesis_version: 6.151.11
+
+['E', 'Nothing', 'Option', 'Option[T]', 'Option[U]', 'Option[tuple[T, U]]', 'Result[T, E]', 'Some', 'T', 'U', '_value']

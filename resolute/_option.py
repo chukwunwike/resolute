@@ -10,12 +10,17 @@ It is an explicit, type-safe alternative to returning None.
 from __future__ import annotations
 
 from typing import (
+    Any,
     Callable,
     Generic,
     Iterator,
     TypeVar,
     TYPE_CHECKING,
+    cast,
 )
+
+__all__ = ["Option", "Some", "Nothing"]
+
 
 from ._exceptions import UnwrapError
 
@@ -60,7 +65,7 @@ class Option(Generic[T]):
             Nothing.is_some_and(lambda x: True)     # False
         """
         if isinstance(self, Some):
-            return predicate(self._value)
+            return predicate(cast(T, self._value))
         return False
 
     # ------------------------------------------------------------------ #
@@ -75,7 +80,7 @@ class Option(Generic[T]):
             Nothing.unwrap()   # raises UnwrapError
         """
         if isinstance(self, Some):
-            return self._value
+            return cast(T, self._value)
         raise UnwrapError("Called unwrap() on Nothing")
 
     def unwrap_or(self, default: T) -> T:
@@ -86,7 +91,7 @@ class Option(Generic[T]):
             Nothing.unwrap_or(99)  # 99
         """
         if isinstance(self, Some):
-            return self._value
+            return cast(T, self._value)
         return default
 
     def unwrap_or_else(self, f: Callable[[], T]) -> T:
@@ -96,7 +101,7 @@ class Option(Generic[T]):
             Nothing.unwrap_or_else(lambda: expensive_default())
         """
         if isinstance(self, Some):
-            return self._value
+            return cast(T, self._value)
         return f()
 
     def unwrap_or_raise(self, exc: Exception) -> T:
@@ -104,7 +109,7 @@ class Option(Generic[T]):
         Return the Some value, or raise the given exception if Nothing.
         """
         if isinstance(self, Some):
-            return self._value
+            return cast(T, self._value)
         raise exc
 
     def expect(self, message: str) -> T:
@@ -115,7 +120,7 @@ class Option(Generic[T]):
             # raises UnwrapError("user must be logged in")
         """
         if isinstance(self, Some):
-            return self._value
+            return cast(T, self._value)
         raise UnwrapError(message)
 
     # ------------------------------------------------------------------ #
@@ -141,7 +146,7 @@ class Option(Generic[T]):
             Nothing.map_or(0, lambda x: x * 3)  # 0
         """
         if isinstance(self, Some):
-            return f(self._value)
+            return f(cast(T, self._value))
         return default
 
     def map_or_else(self, default_f: Callable[[], U], f: Callable[[T], U]) -> U:
@@ -151,7 +156,7 @@ class Option(Generic[T]):
             Nothing.map_or_else(lambda: compute_default(), lambda x: x)
         """
         if isinstance(self, Some):
-            return f(self._value)
+            return f(cast(T, self._value))
         return default_f()
 
     def filter(self, predicate: Callable[[T], bool]) -> "Option[T]":
@@ -162,7 +167,7 @@ class Option(Generic[T]):
             Some(2).filter(lambda x: x > 3)   # Nothing
             Nothing.filter(lambda x: True)     # Nothing
         """
-        if isinstance(self, Some) and predicate(self._value):
+        if isinstance(self, Some) and predicate(cast(T, self._value)):
             return self
         return _Nothing
 
@@ -181,7 +186,7 @@ class Option(Generic[T]):
             Nothing.and_then(find_email)   # Nothing
         """
         if isinstance(self, Some):
-            return f(self._value)
+            return f(cast(T, self._value))
         return self  # type: ignore[return-value]
 
     def or_else(self, f: Callable[[], "Option[T]"]) -> "Option[T]":
@@ -204,7 +209,7 @@ class Option(Generic[T]):
         """
         if isinstance(self, Some):
             return other
-        return _Nothing  # type: ignore[return-value]
+        return _Nothing
 
     def or_(self, other: "Option[T]") -> "Option[T]":
         """
@@ -227,8 +232,8 @@ class Option(Generic[T]):
             Nothing.zip(Some("a"))   # Nothing
         """
         if isinstance(self, Some) and isinstance(other, Some):
-            return Some((self._value, other._value))
-        return _Nothing  # type: ignore[return-value]
+            return Some((cast(T, self._value), cast(U, other._value)))
+        return _Nothing
 
     def flatten(self) -> "Option[T]":
         """
@@ -239,10 +244,10 @@ class Option(Generic[T]):
             Nothing.flatten()        # Nothing
         """
         if isinstance(self, Some) and isinstance(self._value, Option):
-            return self._value  # type: ignore[return-value]
+            return cast(Option[T], self._value)
         if isinstance(self, Some):
-            return self  # type: ignore[return-value]
-        return _Nothing  # type: ignore[return-value]
+            return self
+        return _Nothing
 
     # ------------------------------------------------------------------ #
     # Converting to Result
@@ -257,7 +262,7 @@ class Option(Generic[T]):
         """
         from ._result import Ok, Err
         if isinstance(self, Some):
-            return Ok(self._value)
+            return Ok(cast(T, self._value))
         return Err(error)
 
     def ok_or_else(self, error_f: Callable[[], E]) -> "Result[T, E]":
@@ -268,7 +273,7 @@ class Option(Generic[T]):
         """
         from ._result import Ok, Err
         if isinstance(self, Some):
-            return Ok(self._value)
+            return Ok(cast(T, self._value))
         return Err(error_f())
 
     # ------------------------------------------------------------------ #
@@ -282,7 +287,7 @@ class Option(Generic[T]):
             [x for opt in options for x in opt]  # flatten list of Options
         """
         if isinstance(self, Some):
-            yield self._value
+            yield cast(T, self._value)
 
     # ------------------------------------------------------------------ #
     # Dunder methods
@@ -347,9 +352,9 @@ class _NothingType(Option[T]):
     """
 
     __slots__ = ()
-    _instance: "_NothingType | None" = None
+    _instance: _NothingType[Any] | None = None
 
-    def __new__(cls) -> "_NothingType":
+    def __new__(cls) -> _NothingType[T]:
         # Singleton — there is only one Nothing
         if cls._instance is None:
             cls._instance = super().__new__(cls)
@@ -369,7 +374,7 @@ class _NothingType(Option[T]):
 
 
 # The singleton Nothing instance — import and use this directly
-Nothing: _NothingType = _NothingType()
+Nothing: _NothingType[Any] = _NothingType()
 
 # Internal alias used in _result.py to avoid circular import issues
 _Nothing = Nothing

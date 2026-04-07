@@ -44,7 +44,7 @@ def collect(results: Iterable[Result[T, E]]) -> Result[List[T], E]:
     values: List[T] = []
     for r in results:
         if isinstance(r, Err):
-            return r  # type: ignore[return-value]
+            return r
         values.append(r.unwrap())
     return Ok(values)
 
@@ -69,8 +69,8 @@ def collect_all(results: Iterable[Result[T, E]]) -> Result[List[T], List[E]]:
     for r in results:
         if isinstance(r, Ok):
             values.append(r.value)
-        else:
-            errors.append(r.error)  # type: ignore[union-attr]
+        elif isinstance(r, Err):
+            errors.append(r.error)
 
     if errors:
         return Err(errors)
@@ -96,8 +96,8 @@ def partition(
     for r in results:
         if isinstance(r, Ok):
             ok_values.append(r.value)
-        else:
-            err_values.append(r.error)  # type: ignore[union-attr]
+        elif isinstance(r, Err):
+            err_values.append(r.error)
 
     return ok_values, err_values
 
@@ -112,7 +112,7 @@ def flatten_result(result: Result[Result[T, E], E]) -> Result[T, E]:
 
     Equivalent to result.and_then(lambda x: x).
     """
-    return result.and_then(lambda x: x)  # type: ignore[arg-type]
+    return result.and_then(lambda x: x)
 
 
 # --------------------------------------------------------------------------- #
@@ -133,7 +133,7 @@ def sequence(options: Iterable[Option[T]]) -> Option[List[T]]:
     values: List[T] = []
     for opt in options:
         if isinstance(opt, _NothingType):
-            return _Nothing  # type: ignore[return-value]
+            return _Nothing
         values.append(opt.unwrap())
     return Some(values)
 
@@ -150,7 +150,7 @@ def transpose(opt: Option[Result[T, E]]) -> Result[Option[T], E]:
     does exist it might have failed.
     """
     if isinstance(opt, _NothingType):
-        return Ok(_Nothing)  # type: ignore[arg-type]
+        return Ok(_Nothing)
     # opt is Some(Result)
     inner: Result[T, E] = opt.unwrap()
     if isinstance(inner, Ok):
@@ -169,9 +169,9 @@ def transpose_result(result: Result[Option[T], E]) -> Option[Result[T, E]]:
     Inverse of transpose().
     """
     if isinstance(result, Err):
-        return Some(result)  # type: ignore[return-value]
+        return Some(result)
     # result is Ok(Option)
     inner: Option[T] = result.unwrap()
     if isinstance(inner, _NothingType):
-        return _Nothing  # type: ignore[return-value]
-    return Some(Ok(inner.unwrap()))  # type: ignore[return-value]
+        return _Nothing
+    return Some(Ok(inner.unwrap()))

@@ -4,6 +4,8 @@ resolute._exceptions
 Custom exceptions raised by resolute internals.
 """
 
+from typing import Any
+
 
 class UnwrapError(Exception):
     """
@@ -13,7 +15,7 @@ class UnwrapError(Exception):
     The original value is stored on the exception so callers can inspect it.
     """
 
-    def __init__(self, message: str, original=None) -> None:
+    def __init__(self, message: str, original: Any = None) -> None:
         super().__init__(message)
         self.original = original
 

@@ -11,13 +11,18 @@ visible in the type system and eliminating surprise exceptions.
 from __future__ import annotations
 
 from typing import (
+    Any,
     Callable,
     Generic,
     Iterator,
     TypeVar,
     TYPE_CHECKING,
     overload,
+    cast,
 )
+
+__all__ = ["Result", "Ok", "Err"]
+
 
 from ._exceptions import UnwrapError
 
@@ -64,7 +69,7 @@ class Result(Generic[T, E]):
             Err("x").is_ok_and(lambda x: True)  # False
         """
         if isinstance(self, Ok):
-            return predicate(self._value)
+            return predicate(cast(Ok[T, E], self)._value)
         return False
 
     def is_err_and(self, predicate: Callable[[E], bool]) -> bool:
@@ -75,7 +80,7 @@ class Result(Generic[T, E]):
             Ok(1).is_err_and(lambda e: True)             # False
         """
         if isinstance(self, Err):
-            return predicate(self._error)
+            return predicate(cast(Err[T, E], self)._error)
         return False
 
     # ------------------------------------------------------------------ #
@@ -93,10 +98,11 @@ class Result(Generic[T, E]):
             Err("x").unwrap()    # raises UnwrapError
         """
         if isinstance(self, Ok):
-            return self._value
+            return cast(Ok[T, E], self)._value
+        err = cast(Err[T, E], self)
         raise UnwrapError(
-            f"Called unwrap() on an Err value: {self._error!r}",  # type: ignore[union-attr]
-            original=self._error,  # type: ignore[union-attr]
+            f"Called unwrap() on an Err value: {err._error!r}",
+            original=err._error,
         )
 
     def unwrap_or(self, default: T) -> T:
@@ -107,7 +113,7 @@ class Result(Generic[T, E]):
             Err("x").unwrap_or(99)   # 99
         """
         if isinstance(self, Ok):
-            return self._value
+            return cast(Ok[T, E], self)._value
         return default
 
     def unwrap_or_else(self, f: Callable[[E], T]) -> T:
@@ -117,8 +123,9 @@ class Result(Generic[T, E]):
             Err("oops").unwrap_or_else(lambda e: len(e))  # 4
         """
         if isinstance(self, Ok):
-            return self._value
-        return f(self._error)  # type: ignore[union-attr]
+            return cast(T, self._value)
+        err: Err[T, E] = cast(Err[T, E], self)
+        return f(err._error)
 
     def unwrap_or_raise(self, exc: Exception) -> T:
         """
@@ -127,7 +134,7 @@ class Result(Generic[T, E]):
             Err("bad").unwrap_or_raise(ValueError("config failed"))
         """
         if isinstance(self, Ok):
-            return self._value
+            return cast(T, self._value)
         raise exc
 
     def unwrap_err(self) -> E:
@@ -138,10 +145,11 @@ class Result(Generic[T, E]):
             Ok(1).unwrap_err()      # raises UnwrapError
         """
         if isinstance(self, Err):
-            return self._error
+            return cast(E, self._error)
+        ok: Ok[T, E] = self  # type: ignore[assignment]
         raise UnwrapError(
-            f"Called unwrap_err() on an Ok value: {self._value!r}",  # type: ignore[union-attr]
-            original=self._value,  # type: ignore[union-attr]
+            f"Called unwrap_err() on an Ok value: {ok._value!r}",
+            original=ok._value,
         )
 
     def expect(self, message: str) -> T:
@@ -152,10 +160,11 @@ class Result(Generic[T, E]):
             Err("nope").expect("should have a user")  # raises UnwrapError("should have a user: 'nope'")
         """
         if isinstance(self, Ok):
-            return self._value
+            return cast(T, self._value)
+        err: Err[T, E] = self  # type: ignore[assignment]
         raise UnwrapError(
-            f"{message}: {self._error!r}",  # type: ignore[union-attr]
-            original=self._error,  # type: ignore[union-attr]
+            f"{message}: {err._error!r}",
+            original=err._error,
         )
 
     def expect_err(self, message: str) -> E:
@@ -163,10 +172,11 @@ class Result(Generic[T, E]):
         Return the Err value, or raise UnwrapError with a custom message if Ok.
         """
         if isinstance(self, Err):
-            return self._error
+            return cast(E, self._error)
+        ok: Ok[T, E] = self  # type: ignore[assignment]
         raise UnwrapError(
-            f"{message}: {self._value!r}",  # type: ignore[union-attr]
-            original=self._value,  # type: ignore[union-attr]
+            f"{message}: {ok._value!r}",
+            original=ok._value,
         )
 
     # ------------------------------------------------------------------ #
@@ -192,7 +202,7 @@ class Result(Generic[T, E]):
             Err("bad").map_or(0, lambda x: x * 3) # 0
         """
         if isinstance(self, Ok):
-            return f(self._value)
+            return f(cast(T, self._value))
         return default
 
     def map_or_else(self, default_f: Callable[[E], U], f: Callable[[T], U]) -> U:
@@ -203,8 +213,9 @@ class Result(Generic[T, E]):
             Err("bad").map_or_else(lambda e: len(e), lambda x: 0)  # 3
         """
         if isinstance(self, Ok):
-            return f(self._value)
-        return default_f(self._error)  # type: ignore[union-attr]
+            return f(cast(T, self._value))
+        err: Err[T, E] = cast(Err[T, E], self)
+        return default_f(err._error)
 
     # ------------------------------------------------------------------ #
     # Transforming Err values
@@ -240,8 +251,8 @@ class Result(Generic[T, E]):
             Err("prior").and_then(safe_sqrt)  # Err("prior")
         """
         if isinstance(self, Ok):
-            return f(self._value)
-        return self  # type: ignore[return-value]
+            return f(cast(T, self._value))
+        return cast(Result[U, E], self)
 
     def or_else(self, f: Callable[[E], "Result[T, F]"]) -> "Result[T, F]":
         """
@@ -275,9 +286,9 @@ class Result(Generic[T, E]):
             Err("x").or_(Ok(2))     # Ok(2)
             Err("x").or_(Err("y"))  # Err("y")
         """
-        if isinstance(self, Ok):
-            return self  # type: ignore[return-value]
-        return other
+        if isinstance(self, Err):
+            return other
+        return cast(Result[T, F], self)
 
     # ------------------------------------------------------------------ #
     # Converting to Option
@@ -293,7 +304,7 @@ class Result(Generic[T, E]):
         """
         from ._option import Some, _Nothing
         if isinstance(self, Ok):
-            return Some(self._value)
+            return Some(cast(T, self._value))
         return _Nothing
 
     def err(self) -> "Option[E]":
@@ -305,7 +316,7 @@ class Result(Generic[T, E]):
         """
         from ._option import Some, _Nothing
         if isinstance(self, Err):
-            return Some(self._error)
+            return Some(cast(E, self._error))
         return _Nothing
 
     # ------------------------------------------------------------------ #
@@ -321,7 +332,7 @@ class Result(Generic[T, E]):
             [x for r in results for x in r]  # flattens Ok values, skips Errs
         """
         if isinstance(self, Ok):
-            yield self._value
+            yield cast(T, self._value)
 
     # ------------------------------------------------------------------ #
     # Dunder methods
@@ -339,6 +350,8 @@ class Result(Generic[T, E]):
     def __bool__(self) -> bool:
         """Ok is truthy, Err is falsy. Allows: if result: ..."""
         return isinstance(self, Ok)
+
+
 
 
 # --------------------------------------------------------------------------- #
