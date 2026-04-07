@@ -8,7 +8,7 @@
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)]()
 [![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://chukwunwike.github.io/resolute/)
 
-📖 **[Full Documentation](https://chukwunwike.github.io/resolute/)**
+### [Read the Full Documentation here](https://chukwunwike.github.io/resolute/)
 
 ---
 
