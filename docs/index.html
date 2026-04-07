@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>resolute — Result &amp; Option types for Python</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,800;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink:        #0f0e0c;
+    --paper:      #f5f2eb;
+    --cream:      #ede9df;
+    --warm-mid:   #c9bfa8;
+    --accent:     #c84b2f;
+    --accent2:    #2a6049;
+    --code-bg:    #1c1b18;
+    --code-text:  #e8e3d8;
+    --ok-color:   #2a6049;
+    --err-color:  #c84b2f;
+    --some-color: #3d5a8a;
+    --border:     #d4cfc4;
+    --gutter:     clamp(1.5rem, 5vw, 4rem);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── Sidebar nav ── */
+  .layout { display: flex; min-height: 100vh; }
+
+  nav {
+    position: fixed;
+    top: 0; left: 0;
+    width: 260px;
+    height: 100vh;
+    background: var(--ink);
+    color: var(--paper);
+    overflow-y: auto;
+    padding: 2rem 1.5rem 3rem;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    scrollbar-width: thin;
+    scrollbar-color: #333 transparent;
+  }
+
+  nav .nav-brand {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.3rem;
+  }
+
+  nav .nav-tagline {
+    font-size: 0.72rem;
+    color: var(--warm-mid);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+  }
+
+  nav .nav-section {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--warm-mid);
+    margin-top: 1.4rem;
+    margin-bottom: 0.4rem;
+    padding-left: 0.5rem;
+  }
+
+  nav a {
+    display: block;
+    padding: 0.3rem 0.5rem;
+    color: #bbb;
+    text-decoration: none;
+    font-size: 0.82rem;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+    border-left: 2px solid transparent;
+  }
+
+  nav a:hover, nav a.active {
+    color: #fff;
+    background: rgba(255,255,255,0.05);
+    border-left-color: var(--accent);
+  }
+
+  nav .badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    padding: 0.1em 0.45em;
+    border-radius: 3px;
+    margin-left: 0.4em;
+    font-weight: 500;
+    vertical-align: middle;
+  }
+  .badge-ok   { background: var(--ok-color);   color: #fff; }
+  .badge-err  { background: var(--err-color);  color: #fff; }
+  .badge-some { background: var(--some-color); color: #fff; }
+
+  /* ── Main content ── */
+  main {
+    margin-left: 260px;
+    flex: 1;
+    max-width: 100%;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 5rem var(--gutter) 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(200,75,47,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse at 10% 80%, rgba(42,96,73,0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--warm-mid);
+    margin-bottom: 1.2rem;
+  }
+
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.0;
+    margin-bottom: 1.2rem;
+    color: #fff;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 300;
+  }
+
+  .hero-subtitle {
+    font-size: 1.15rem;
+    color: #bbb;
+    max-width: 560px;
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 3rem;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.35em 0.8em;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 100px;
+    font-size: 0.78rem;
+    color: #ccc;
+    background: rgba(255,255,255,0.04);
+  }
+
+  .pill-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .pill-dot.green { background: var(--ok-color); }
+
+  .install-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 0.8rem 1.2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    color: #e0dbd0;
+  }
+
+  .install-box .prompt { color: var(--accent); user-select: none; }
+
+  /* ── Sections ── */
+  section {
+    padding: 4rem var(--gutter);
+    border-bottom: 1px solid var(--border);
+  }
+
+  section:last-child { border-bottom: none; }
+
+  section.alt { background: var(--cream); }
+
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 1.2rem;
+    color: var(--ink);
+  }
+
+  h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 2.5rem 0 0.8rem;
+    color: var(--ink);
+  }
+
+  h4 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--accent2);
+    margin: 2rem 0 0.5rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  p { margin-bottom: 1rem; max-width: 68ch; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── Code blocks ── */
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 8px;
+    padding: 1.4rem 1.6rem;
+    overflow-x: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.83rem;
+    line-height: 1.65;
+    margin: 1.2rem 0;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.83em;
+    background: rgba(0,0,0,0.08);
+    padding: 0.15em 0.35em;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+
+  /* Syntax colouring (manual, minimal) */
+  .kw   { color: #d4956a; }  /* keywords */
+  .fn   { color: #8fbe9a; }  /* functions */
+  .str  { color: #a8c587; }  /* strings */
+  .cm   { color: #6b6860; font-style: italic; }  /* comments */
+  .ok   { color: #6bc48a; font-weight: 500; }  /* Ok */
+  .err  { color: #e07060; font-weight: 500; }  /* Err */
+  .some { color: #7aaad4; font-weight: 500; }  /* Some */
+  .num  { color: #c9a96b; }  /* numbers */
+  .dec  { color: #b09ad6; }  /* decorators */
+  .type { color: #7aaad4; }  /* types */
+  .op   { color: #888; }
+
+  /* ── Result / Option tag bubbles ── */
+  .variant-ok  { color: var(--ok-color);  font-weight: 500; }
+  .variant-err { color: var(--err-color); font-weight: 500; }
+  .variant-some { color: var(--some-color); font-weight: 500; }
+
+  /* ── Two-column layout ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .three-col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.4rem 1.6rem;
+  }
+
+  .card-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--accent2);
+    margin-bottom: 0.6rem;
+  }
+
+  .card p { font-size: 0.88rem; line-height: 1.55; color: #444; }
+
+  /* ── Method table ── */
+  .method-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin: 1.2rem 0;
+  }
+
+  .method-table th {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    background: var(--code-bg);
+    color: var(--warm-mid);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+
+  .method-table td {
+    padding: 0.65rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .method-table tr:last-child td { border-bottom: none; }
+
+  .method-table tr:hover td { background: rgba(0,0,0,0.02); }
+
+  .method-table code {
+    background: none;
+    padding: 0;
+    color: var(--accent2);
+    font-size: 0.82rem;
+  }
+
+  .method-desc { color: #555; line-height: 1.4; }
+
+  /* ── Philosophy grid ── */
+  .philosophy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .philo-card {
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.2rem;
+    background: #fff;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .philo-card.green { border-left-color: var(--ok-color); }
+  .philo-card.blue  { border-left-color: var(--some-color); }
+
+  .philo-num {
+    font-family: 'Fraunces', serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+
+  .philo-title {
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .philo-card p { font-size: 0.82rem; color: #555; }
+
+  /* ── Error type table ── */
+  .error-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin: 1.5rem 0;
+  }
+
+  .error-table th {
+    text-align: left;
+    padding: 0.6rem 1rem;
+    background: var(--ink);
+    color: var(--warm-mid);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .error-table td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .error-table tr:last-child td { border-bottom: none; }
+
+  .tag {
+    display: inline-block;
+    padding: 0.2em 0.6em;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .tag-result { background: #e8f5e9; color: var(--ok-color); }
+  .tag-crash  { background: #fce4ec; color: #b71c1c; }
+
+  /* ── Comparison table ── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .compare-table th {
+    padding: 0.7rem 1rem;
+    background: var(--ink);
+    color: #fff;
+    font-weight: 400;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+
+  .compare-table th:first-child { text-align: left; }
+
+  .compare-table td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .compare-table td:first-child { text-align: left; color: #333; }
+
+  .compare-table tr:hover td { background: rgba(0,0,0,0.02); }
+
+  .yes { color: var(--ok-color); font-weight: 700; font-size: 1rem; }
+  .no  { color: #ccc; }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--ink);
+    color: #666;
+    padding: 2rem var(--gutter);
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  footer a { color: #999; text-decoration: none; }
+  footer a:hover { color: #fff; }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    nav { width: 220px; }
+    main { margin-left: 220px; }
+    .two-col, .three-col { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 680px) {
+    nav { display: none; }
+    main { margin-left: 0; }
+  }
+
+  /* ── Scroll spy active state ── */
+  section[id] { scroll-margin-top: 1rem; }
+</style>
+</head>
+
+<body>
+<div class="layout">
+
+<!-- ── SIDEBAR ── -->
+<nav id="sidebar">
+  <div class="nav-brand">resolute</div>
+  <div class="nav-tagline">Result &amp; Option for Python</div>
+
+  <div class="nav-section">Getting Started</div>
+  <a href="#overview">Overview</a>
+  <a href="#installation">Installation</a>
+  <a href="#quickstart">Quick Start</a>
+
+  <div class="nav-section">Core Types</div>
+  <a href="#result">Result[T, E] <span class="badge badge-ok">Ok</span><span class="badge badge-err">Err</span></a>
+  <a href="#option">Option[T] <span class="badge badge-some">Some</span></a>
+
+  <div class="nav-section">Methods</div>
+  <a href="#checking">Checking Variants</a>
+  <a href="#extracting">Extracting Values</a>
+  <a href="#transforming">Transforming</a>
+  <a href="#chaining">Chaining</a>
+  <a href="#converting">Converting</a>
+  <a href="#pattern-matching">Pattern Matching</a>
+
+  <div class="nav-section">Decorators</div>
+  <a href="#safe">@safe</a>
+  <a href="#safe-async">@safe_async</a>
+
+  <div class="nav-section">Combinators</div>
+  <a href="#collect">collect</a>
+  <a href="#collect-all">collect_all</a>
+  <a href="#partition">partition</a>
+  <a href="#sequence">sequence</a>
+  <a href="#transpose">transpose</a>
+
+  <div class="nav-section">Guides</div>
+  <a href="#philosophy">Philosophy</a>
+  <a href="#what-belongs">What Belongs in Result</a>
+  <a href="#patterns">Real-World Patterns</a>
+  <a href="#comparison">Comparison</a>
+  <a href="#reference">API Reference</a>
+</nav>
+
+<!-- ── MAIN ── -->
+<main>
+
+<!-- HERO -->
+<div class="hero" id="overview">
+  <div class="hero-eyebrow">Python · Zero Dependencies · Fully Typed</div>
+  <h1>Make your<br/><em>errors visible.</em></h1>
+  <p class="hero-subtitle">
+    <code style="background:rgba(255,255,255,0.1);color:#e8e3d8">resolute</code> brings
+    <strong style="color:#fff">Result</strong> and <strong style="color:#fff">Option</strong> types
+    to Python. Your function signatures become honest contracts.
+    Your error paths become impossible to ignore.
+  </p>
+  <div class="hero-pills">
+    <span class="pill"><span class="pill-dot green"></span>Zero dependencies</span>
+    <span class="pill"><span class="pill-dot green"></span>Python 3.9+</span>
+    <span class="pill"><span class="pill-dot green"></span>mypy &amp; pyright</span>
+    <span class="pill"><span class="pill-dot green"></span>Pattern matching</span>
+    <span class="pill"><span class="pill-dot"></span>MIT License</span>
+  </div>
+  <div class="install-box">
+    <span class="prompt">$</span>
+    <span>pip install resolute</span>
+  </div>
+</div>
+
+<!-- INSTALLATION -->
+<section id="installation">
+  <div class="section-label">Setup</div>
+  <h2>Installation</h2>
+  <p><code>resolute</code> has <strong>zero runtime dependencies</strong>. Install it and start using it immediately.</p>
+  <pre><span class="cm"># From PyPI</span>
+pip install resolute
+
+<span class="cm"># Or with dev tools (mypy, pyright, pytest)</span>
+pip install resolute[dev]</pre>
+
+  <p>Python 3.9 or later is required. No mypy plugins. No configuration files. No setup beyond the install itself.</p>
+</section>
+
+<!-- QUICK START -->
+<section class="alt" id="quickstart">
+  <div class="section-label">Introduction</div>
+  <h2>Quick Start</h2>
+  <p>Python functions can raise exceptions or return <code>None</code> — and neither appears in the type signature. <code>resolute</code> gives you types that tell the truth.</p>
+
+  <div class="two-col">
+    <div>
+      <h3 style="margin-top:0">Before</h3>
+      <pre><span class="cm"># What can go wrong here?</span>
+<span class="cm"># The signature won't tell you.</span>
+<span class="kw">def</span> <span class="fn">get_user</span>(uid: <span class="type">int</span>) -> <span class="type">User</span>:
+    <span class="cm"># might raise DatabaseError</span>
+    <span class="cm"># might raise UserNotFoundError</span>
+    <span class="cm"># might return None silently</span>
+    ...</pre>
+    </div>
+    <div>
+      <h3 style="margin-top:0">After</h3>
+      <pre><span class="kw">from</span> resolute <span class="kw">import</span> Ok, Err, Result
+
+<span class="cm"># The contract is explicit.</span>
+<span class="kw">def</span> <span class="fn">get_user</span>(uid: <span class="type">int</span>) -> <span class="type">Result</span>[<span class="type">User</span>, <span class="type">str</span>]:
+    row = db.find(uid)
+    <span class="kw">if</span> row <span class="kw">is</span> <span class="kw">None</span>:
+        <span class="kw">return</span> <span class="err">Err</span>(<span class="str">"user not found"</span>)
+    <span class="kw">return</span> <span class="ok">Ok</span>(User.from_row(row))</pre>
+    </div>
+  </div>
+
+  <h3>Core types at a glance</h3>
+  <pre><span class="kw">from</span> resolute <span class="kw">import</span> Ok, Err, Result, Some, Nothing, Option, safe
+
+<span class="cm"># Result — a value OR an error</span>
+<span class="kw">def</span> <span class="fn">parse_port</span>(raw: <span class="type">str</span>) -> <span class="type">Result</span>[<span class="type">int</span>, <span class="type">str</span>]:
+    <span class="kw">try</span>:
+        port = <span class="fn">int</span>(raw)
+    <span class="kw">except</span> <span class="type">ValueError</span>:
+        <span class="kw">return</span> <span class="err">Err</span>(<span class="str">f"Port must be an integer, got: {raw!r}"</span>)
+    <span class="kw">if not</span> <span class="num">1</span> <= port <= <span class="num">65535</span>:
+        <span class="kw">return</span> <span class="err">Err</span>(<span class="str">f"Port {port} is out of range"</span>)
+    <span class="kw">return</span> <span class="ok">Ok</span>(port)
+
+parse_port(<span class="str">"8080"</span>)    <span class="cm"># Ok(8080)</span>
+parse_port(<span class="str">"abc"</span>)     <span class="cm"># Err("Port must be an integer, got: 'abc'")</span>
+parse_port(<span class="str">"99999"</span>)   <span class="cm"># Err("Port 99999 is out of range")</span>
+
+<span class="cm"># Option — a value that might not exist</span>
+<span class="kw">def</span> <span class="fn">find_user</span>(uid: <span class="type">int</span>) -> <span class="type">Option</span>[<span class="type">str</span>]:
+    users = {<span class="num">1</span>: <span class="str">"Archy"</span>, <span class="num">2</span>: <span class="str">"Chuks"</span>}
+    <span class="kw">return</span> <span class="some">Some</span>(users[uid]) <span class="kw">if</span> uid <span class="kw">in</span> users <span class="kw">else</span> Nothing
+
+find_user(<span class="num">1</span>)    <span class="cm"># Some("Archy")</span>
+find_user(<span class="num">99</span>)   <span class="cm"># Nothing</span>
+
+<span class="cm"># @safe — wrap existing exception-throwing functions</span>
+<span class="dec">@safe</span>(catch=<span class="type">ValueError</span>)
+<span class="kw">def</span> <span class="fn">parse_float</span>(s: <span class="type">str</span>) -> <span class="type">float</span>:
+    <span class="kw">return</span> <span class="fn">float</span>(s)
+
+parse_float(<span class="str">"3.14"</span>)   <span class="cm"># Ok(3.14)</span>
+parse_float(<span class="str">"abc"</span>)    <span class="cm"># Err(ValueError(...))</span></pre>
+</section>
+
+<!-- RESULT TYPE -->
+<section id="result">
+  <div class="section-label">Core Type</div>
+  <h2>Result[T, E]</h2>
+  <p>
+    <code>Result[T, E]</code> represents a computation that either succeeds with a value of type <code>T</code>
+    (<span class="variant-ok">Ok</span>), or fails with an error of type <code>E</code> (<span class="variant-err">Err</span>).
+  </p>
+
+  <div class="three-col" style="margin-top:1.5rem">
+    <div class="card">
+      <div class="card-title" style="color:var(--ok-color)">Ok(value)</div>
+      <p>The success variant. Contains a value of type <code>T</code>. The operation completed without error.</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--err-color)">Err(error)</div>
+      <p>The failure variant. Contains an error of type <code>E</code>. The error can be any type — string, enum, exception, dataclass.</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--some-color)">Type params</div>
+      <p><code>Result[int, str]</code> means Ok contains <code>int</code>, Err contains <code>str</code>. Both mypy and pyright understand this.</p>
+    </div>
+  </div>
+
+  <pre><span class="kw">from</span> resolute <span class="kw">import</span> Ok, Err, Result
+
+<span class="cm"># Ok — success</span>
+r: <span class="type">Result</span>[<span class="type">int</span>, <span class="type">str</span>] = <span class="ok">Ok</span>(<span class="num">42</span>)
+
+<span class="cm"># Err — failure</span>
+r: <span class="type">Result</span>[<span class="type">int</span>, <span class="type">str</span>] = <span class="err">Err</span>(<span class="str">"something went wrong"</span>)
+
+<span class="cm"># Errors can be any type</span>
+r: <span class="type">Result</span>[<span class="type">User</span>, <span class="type">DatabaseError</span>] = <span class="err">Err</span>(<span class="type">DatabaseError</span>(<span class="str">"connection refused"</span>))
+r: <span class="type">Result</span>[<span class="type">str</span>, <span class="type">list</span>[<span class="type">str</span>]]       = <span class="err">Err</span>([<span class="str">"field required"</span>, <span class="str">"invalid email"</span>])</pre>
+</section>
+
+<!-- OPTION TYPE -->
+<section class="alt" id="option">
+  <div class="section-label">Core Type</div>
+  <h2>Option[T]</h2>
+  <p>
+    <code>Option[T]</code> represents a value that may or may not exist.
+    It is an explicit, type-safe alternative to returning <code>None</code>.
+  </p>
+
+  <div class="two-col" style="margin-top:1.5rem">
+    <div class="card">
+      <div class="card-title" style="color:var(--some-color)">Some(value)</div>
+      <p>Contains a value of type <code>T</code>. The value exists.</p>
+      <pre style="font-size:0.78rem;margin-top:0.8rem"><span class="some">Some</span>(<span class="str">"Archy"</span>)   <span class="cm"># Some("Archy")</span>
+<span class="some">Some</span>(<span class="num">0</span>)         <span class="cm"># Some(0) — 0 is a real value!</span>
+<span class="some">Some</span>([])        <span class="cm"># Some([]) — empty list is real</span></pre>
+    </div>
+    <div class="card">
+      <div class="card-title">Nothing</div>
+      <p>A singleton. Represents the absence of a value. There is only one <code>Nothing</code> in memory — you can use <code>is</code> comparisons safely.</p>
+      <pre style="font-size:0.78rem;margin-top:0.8rem">Nothing          <span class="cm"># no value</span>
+result <span class="kw">is</span> Nothing  <span class="cm"># True — singleton</span></pre>
+    </div>
+  </div>
+
+  <h3>When to use Option vs Result</h3>
+  <p>Use <strong>Option</strong> when absence is normal and expected — a user preference that might not be set, a cache entry that might not exist. The absence is not a failure.</p>
+  <p>Use <strong>Result</strong> when failure should carry a reason — a file that couldn't be read, a form field that failed validation. The caller needs to know <em>why</em> it failed.</p>
+</section>
+
+<!-- CHECKING -->
+<section id="checking">
+  <div class="section-label">Methods</div>
+  <h2>Checking the Variant</h2>
+
+  <h4>Result</h4>
+  <pre>r = <span class="ok">Ok</span>(<span class="num">42</span>)
+r.is_ok()    <span class="cm"># True</span>
+r.is_err()   <span class="cm"># False</span>
+
+r = <span class="err">Err</span>(<span class="str">"bad"</span>)
+r.is_ok()    <span class="cm"># False</span>
+r.is_err()   <span class="cm"># True</span>
+
+<span class="cm"># With predicates — check variant AND value in one call</span>
+<span class="ok">Ok</span>(<span class="num">10</span>).is_ok_and(<span class="kw">lambda</span> x: x > <span class="num">5</span>)         <span class="cm"># True</span>
+<span class="ok">Ok</span>(<span class="num">2</span>).is_ok_and(<span class="kw">lambda</span> x: x > <span class="num">5</span>)          <span class="cm"># False</span>
+<span class="err">Err</span>(<span class="str">"x"</span>).is_ok_and(<span class="kw">lambda</span> x: <span class="kw">True</span>)        <span class="cm"># False — predicate never called</span>
+
+<span class="err">Err</span>(<span class="str">"bad input"</span>).is_err_and(<span class="kw">lambda</span> e: <span class="str">"input"</span> <span class="kw">in</span> e)  <span class="cm"># True</span></pre>
+
+  <h4>Option</h4>
+  <pre>o = <span class="some">Some</span>(<span class="str">"hello"</span>)
+o.is_some()     <span class="cm"># True</span>
+o.is_nothing()  <span class="cm"># False</span>
+
+Nothing.is_some()     <span class="cm"># False</span>
+Nothing.is_nothing()  <span class="cm"># True</span>
+
+<span class="cm"># Boolean — Some is truthy, Nothing is falsy</span>
+<span class="kw">if</span> find_user(<span class="num">1</span>):
+    <span class="cm"># some user was found</span>
+    ...</pre>
+</section>
+
+<!-- EXTRACTING -->
+<section class="alt" id="extracting">
+  <div class="section-label">Methods</div>
+  <h2>Extracting Values</h2>
+  <p>These methods let you get the contained value out of a <code>Result</code> or <code>Option</code>.</p>
+
+  <h4>.unwrap()</h4>
+  <p>Returns the value if Ok/Some. Raises <code>UnwrapError</code> if Err/Nothing. Use when you are <em>logically certain</em> the result is ok — for example, right after checking <code>is_ok()</code>, or in a test.</p>
+  <pre><span class="ok">Ok</span>(<span class="num">42</span>).unwrap()      <span class="cm"># 42</span>
+<span class="err">Err</span>(<span class="str">"x"</span>).unwrap()    <span class="cm"># raises UnwrapError: "Called unwrap() on an Err value: 'x'"</span></pre>
+
+  <h4>.unwrap_or(default)</h4>
+  <p>Returns the value, or the provided default. The default is <em>always evaluated</em> — if computing it is expensive, use <code>unwrap_or_else</code>.</p>
+  <pre><span class="ok">Ok</span>(<span class="num">42</span>).unwrap_or(<span class="num">0</span>)      <span class="cm"># 42</span>
+<span class="err">Err</span>(<span class="str">"x"</span>).unwrap_or(<span class="num">0</span>)    <span class="cm"># 0</span>
+Nothing.unwrap_or(<span class="str">"—"</span>)   <span class="cm"># "—"</span></pre>
+
+  <h4>.unwrap_or_else(f)</h4>
+  <p>Returns the value, or calls <code>f</code> to compute a default. <code>f</code> is only called on failure.</p>
+  <pre><span class="err">Err</span>(<span class="str">"not found"</span>).unwrap_or_else(<span class="kw">lambda</span> e: <span class="str">f"default ({e})"</span>)
+<span class="cm"># "default (not found)"</span>
+
+Nothing.unwrap_or_else(<span class="kw">lambda</span>: <span class="fn">expensive_default</span>())
+<span class="cm"># f is never called when the result is Ok/Some</span></pre>
+
+  <h4>.unwrap_or_raise(exc)</h4>
+  <p>Returns the value, or raises the given exception. Useful at API boundaries where you need to produce a specific exception type.</p>
+  <pre>user = get_user(uid).unwrap_or_raise(<span class="type">HTTPException</span>(status=<span class="num">404</span>))</pre>
+
+  <h4>.expect(message)</h4>
+  <p>Like <code>.unwrap()</code> but includes your message in the <code>UnwrapError</code>. Use to document <em>why</em> this must be Ok.</p>
+  <pre>config = <span class="fn">load_config</span>().expect(
+    <span class="str">"Config must be loadable at startup — check your env vars"</span>
+)</pre>
+</section>
+
+<!-- TRANSFORMING -->
+<section id="transforming">
+  <div class="section-label">Methods</div>
+  <h2>Transforming Values</h2>
+
+  <h4>.map(f) — transform the success value</h4>
+  <p>Applies <code>f</code> to the Ok/Some value. If the result is Err/Nothing, it passes through unchanged and <code>f</code> is never called.</p>
+  <pre><span class="ok">Ok</span>(<span class="num">5</span>).map(<span class="kw">lambda</span> x: x * <span class="num">2</span>)           <span class="cm"># Ok(10)</span>
+<span class="ok">Ok</span>(<span class="str">"hello"</span>).map(<span class="fn">str.upper</span>)          <span class="cm"># Ok("HELLO")</span>
+<span class="err">Err</span>(<span class="str">"bad"</span>).map(<span class="kw">lambda</span> x: x * <span class="num">2</span>)      <span class="cm"># Err("bad")  — f not called</span>
+
+<span class="some">Some</span>(<span class="str">"world"</span>).map(<span class="fn">str.upper</span>)         <span class="cm"># Some("WORLD")</span>
+Nothing.map(<span class="fn">str.upper</span>)              <span class="cm"># Nothing     — f not called</span></pre>
+
+  <h4>.map_err(f) — transform the error value</h4>
+  <p>Applies <code>f</code> to the Err value. Ok passes through unchanged.</p>
+  <pre><span class="err">Err</span>(<span class="str">"not found"</span>).map_err(<span class="fn">str.upper</span>)       <span class="cm"># Err("NOT FOUND")</span>
+<span class="err">Err</span>(<span class="num">404</span>).map_err(<span class="kw">lambda</span> c: <span class="str">f"HTTP {c}"</span>)    <span class="cm"># Err("HTTP 404")</span>
+<span class="ok">Ok</span>(<span class="num">42</span>).map_err(<span class="fn">str.upper</span>)                 <span class="cm"># Ok(42)       — f not called</span></pre>
+
+  <h4>.map_or(default, f) and .map_or_else(default_f, f)</h4>
+  <pre><span class="ok">Ok</span>(<span class="num">5</span>).map_or(<span class="num">0</span>, <span class="kw">lambda</span> x: x * <span class="num">2</span>)      <span class="cm"># 10</span>
+<span class="err">Err</span>(<span class="str">"x"</span>).map_or(<span class="num">0</span>, <span class="kw">lambda</span> x: x * <span class="num">2</span>)   <span class="cm"># 0</span>
+
+result.map_or_else(
+    <span class="kw">lambda</span> e: <span class="str">f"Error: {e}"</span>,    <span class="cm"># called if Err</span>
+    <span class="kw">lambda</span> v: <span class="str">f"Value: {v}"</span>     <span class="cm"># called if Ok</span>
+)
+
+<span class="cm"># Option: .filter() — Some becomes Nothing if predicate fails</span>
+<span class="some">Some</span>(<span class="num">10</span>).filter(<span class="kw">lambda</span> x: x > <span class="num">5</span>)    <span class="cm"># Some(10)</span>
+<span class="some">Some</span>(<span class="num">3</span>).filter(<span class="kw">lambda</span> x: x > <span class="num">5</span>)     <span class="cm"># Nothing</span>
+Nothing.filter(<span class="kw">lambda</span> x: <span class="kw">True</span>)     <span class="cm"># Nothing</span></pre>
+</section>
+
+<!-- CHAINING -->
+<section class="alt" id="chaining">
+  <div class="section-label">Methods</div>
+  <h2>Chaining</h2>
+  <p>Chaining is the most powerful feature. It lets you write sequential logic that can fail at any step, without nested try/except blocks or if-None checks.</p>
+
+  <h4>.and_then(f) — the core composition operator</h4>
+  <p>If Ok/Some, calls <code>f</code> with the value and returns the result (which must itself be a <code>Result</code>/<code>Option</code>). If Err/Nothing, returns immediately — <code>f</code> is never called. Also known as <em>flatmap</em> or <em>bind</em>.</p>
+  <pre><span class="kw">def</span> <span class="fn">parse_int</span>(s: <span class="type">str</span>) -> <span class="type">Result</span>[<span class="type">int</span>, <span class="type">str</span>]:
+    <span class="kw">try</span>:
+        <span class="kw">return</span> <span class="ok">Ok</span>(<span class="fn">int</span>(s))
+    <span class="kw">except</span> <span class="type">ValueError</span>:
+        <span class="kw">return</span> <span class="err">Err</span>(<span class="str">f"not a number: {s!r}"</span>)
+
+<span class="kw">def</span> <span class="fn">ensure_positive</span>(n: <span class="type">int</span>) -> <span class="type">Result</span>[<span class="type">int</span>, <span class="type">str</span>]:
+    <span class="kw">return</span> <span class="ok">Ok</span>(n) <span class="kw">if</span> n > <span class="num">0</span> <span class="kw">else</span> <span class="err">Err</span>(<span class="str">f"must be positive, got {n}"</span>)
+
+<span class="cm"># Railway-oriented: chain steps — the first failure short-circuits</span>
+<span class="fn">parse_int</span>(<span class="str">"5"</span>).and_then(<span class="fn">ensure_positive</span>).and_then(<span class="kw">lambda</span> n: <span class="ok">Ok</span>(n * <span class="num">2</span>))
+<span class="cm"># Ok(10)</span>
+
+<span class="fn">parse_int</span>(<span class="str">"-3"</span>).and_then(<span class="fn">ensure_positive</span>).and_then(<span class="kw">lambda</span> n: <span class="ok">Ok</span>(n * <span class="num">2</span>))
+<span class="cm"># Err("must be positive, got -3")  — ensure_positive short-circuits</span>
+
+<span class="fn">parse_int</span>(<span class="str">"abc"</span>).and_then(<span class="fn">ensure_positive</span>).and_then(<span class="kw">lambda</span> n: <span class="ok">Ok</span>(n * <span class="num">2</span>))
+<span class="cm"># Err("not a number: 'abc'")       — parse_int short-circuits</span></pre>
+
+  <h4>.or_else(f) — recover from failure</h4>
+  <p>If Err/Nothing, calls <code>f</code> to attempt recovery. If Ok/Some, returns self unchanged.</p>
+  <pre><span class="cm"># Try primary source, fall back to secondary</span>
+value = (
+    <span class="fn">get_from_cache</span>(key)
+    .or_else(<span class="kw">lambda</span> _: <span class="fn">get_from_database</span>(key))
+    .unwrap_or(<span class="str">"default"</span>)
+)
+
+<span class="cm"># Option recovery</span>
+Nothing.or_else(<span class="kw">lambda</span>: <span class="some">Some</span>(<span class="str">"fallback"</span>))   <span class="cm"># Some("fallback")</span></pre>
+
+  <h4>Option extras — .zip() and .flatten()</h4>
+  <pre><span class="cm"># .zip() — combine two Somes into a tuple</span>
+<span class="some">Some</span>(<span class="num">1</span>).zip(<span class="some">Some</span>(<span class="str">"a"</span>))   <span class="cm"># Some((1, "a"))</span>
+<span class="some">Some</span>(<span class="num">1</span>).zip(Nothing)     <span class="cm"># Nothing</span>
+
+<span class="cm"># .flatten() — unwrap Option[Option[T]]</span>
+<span class="some">Some</span>(<span class="some">Some</span>(<span class="num">42</span>)).flatten()   <span class="cm"># Some(42)</span>
+<span class="some">Some</span>(Nothing).flatten()   <span class="cm"># Nothing</span></pre>
+</section>
+
+<!-- CONVERTING -->
+<section id="converting">
+  <div class="section-label">Methods</div>
+  <h2>Converting Between Types</h2>
+
+  <h4>Result → Option</h4>
+  <pre><span class="ok">Ok</span>(<span class="num">42</span>).ok()     <span class="cm"># Some(42)  — success becomes Some</span>
+<span class="err">Err</span>(<span class="str">"x"</span>).ok()   <span class="cm"># Nothing   — error is discarded</span>
+
+<span class="err">Err</span>(<span class="str">"x"</span>).err()  <span class="cm"># Some("x") — error becomes Some</span>
+<span class="ok">Ok</span>(<span class="num">42</span>).err()    <span class="cm"># Nothing   — success discarded</span></pre>
+
+  <h4>Option → Result</h4>
+  <pre><span class="some">Some</span>(<span class="num">42</span>).ok_or(<span class="str">"missing"</span>)          <span class="cm"># Ok(42)</span>
+Nothing.ok_or(<span class="str">"missing"</span>)           <span class="cm"># Err("missing")</span>
+
+Nothing.ok_or_else(<span class="kw">lambda</span>: <span class="fn">build_error</span>())   <span class="cm"># Err(build_error())</span></pre>
+</section>
+
+<!-- PATTERN MATCHING -->
+<section class="alt" id="pattern-matching">
+  <div class="section-label">Python 3.10+</div>
+  <h2>Pattern Matching</h2>
+  <p><code>resolute</code> supports Python's structural pattern matching with no extra setup. The <code>__match_args__</code> attribute is set on all variants.</p>
+
+  <pre><span class="cm"># Result</span>
+<span class="kw">match</span> <span class="fn">get_user</span>(<span class="num">1</span>):
+    <span class="kw">case</span> <span class="ok">Ok</span>(user):
+        <span class="fn">print</span>(<span class="str">f"Found: {user.name}"</span>)
+    <span class="kw">case</span> <span class="err">Err</span>(error):
+        <span class="fn">print</span>(<span class="str">f"Error: {error}"</span>)
+
+<span class="cm"># Option</span>
+<span class="kw">match</span> <span class="fn">find_config</span>(<span class="str">"theme"</span>):
+    <span class="kw">case</span> <span class="some">Some</span>(value):
+        <span class="fn">apply_theme</span>(value)
+    <span class="kw">case</span> _:
+        <span class="fn">apply_default_theme</span>()
+
+<span class="cm"># Nested matching</span>
+<span class="kw">match</span> (result_a, result_b):
+    <span class="kw">case</span> (<span class="ok">Ok</span>(a), <span class="ok">Ok</span>(b)):
+        <span class="fn">process</span>(a, b)
+    <span class="kw">case</span> (<span class="err">Err</span>(e), _) | (_, <span class="err">Err</span>(e)):
+        <span class="fn">handle_error</span>(e)</pre>
+</section>
+
+<!-- @safe -->
+<section id="safe">
+  <div class="section-label">Decorator</div>
+  <h2>@safe</h2>
+  <p>Wraps an exception-throwing function into a <code>Result</code>-returning one. This is the bridge between existing Python code (which uses exceptions) and <code>resolute</code>-style code.</p>
+
+  <pre><span class="kw">from</span> resolute <span class="kw">import</span> safe
+
+<span class="dec">@safe</span>(catch=<span class="type">ValueError</span>)
+<span class="kw">def</span> <span class="fn">parse_int</span>(s: <span class="type">str</span>) -> <span class="type">int</span>:
+    <span class="kw">return</span> <span class="fn">int</span>(s)
+
+<span class="cm"># Returns Result[int, ValueError]</span>
+<span class="fn">parse_int</span>(<span class="str">"42"</span>)    <span class="cm"># Ok(42)</span>
+<span class="fn">parse_int</span>(<span class="str">"abc"</span>)   <span class="cm"># Err(ValueError("invalid literal..."))</span>
+
+<span class="cm"># Exceptions NOT in `catch` are re-raised — they are bugs</span>
+<span class="fn">parse_int</span>(None)    <span class="cm"># raises TypeError (not caught, not a bug to swallow)</span></pre>
+
+  <h4>Multiple exception types</h4>
+  <pre><span class="dec">@safe</span>(catch=(<span class="type">ValueError</span>, <span class="type">KeyError</span>))
+<span class="kw">def</span> <span class="fn">lookup_and_parse</span>(data: <span class="type">dict</span>, key: <span class="type">str</span>) -> <span class="type">int</span>:
+    <span class="kw">return</span> <span class="fn">int</span>(data[key])</pre>
+
+  <h4>Safety rules enforced at decoration time</h4>
+  <pre><span class="cm"># FORBIDDEN — raises SafeDecoratorError immediately:</span>
+<span class="dec">@safe</span>(catch=<span class="type">KeyboardInterrupt</span>)   <span class="cm"># SafeDecoratorError!</span>
+<span class="dec">@safe</span>(catch=<span class="type">SystemExit</span>)         <span class="cm"># SafeDecoratorError!</span>
+<span class="dec">@safe</span>(catch=<span class="type">GeneratorExit</span>)      <span class="cm"># SafeDecoratorError!</span>
+
+<span class="cm"># WARNING — emits RuntimeWarning (too broad):</span>
+<span class="dec">@safe</span>(catch=<span class="type">Exception</span>)          <span class="cm"># works, but warns</span>
+
+<span class="cm"># Suppress the warning when you have a real reason:</span>
+<span class="dec">@safe</span>(catch=<span class="type">Exception</span>, allow_broad=<span class="kw">True</span>)   <span class="cm"># no warning</span></pre>
+</section>
+
+<!-- @safe_async -->
+<section class="alt" id="safe-async">
+  <div class="section-label">Decorator</div>
+  <h2>@safe_async</h2>
+  <p>The async equivalent of <code>@safe</code>. Wraps an <code>async def</code> function.</p>
+
+  <pre><span class="kw">import</span> asyncio
+<span class="kw">from</span> resolute <span class="kw">import</span> safe_async
+
+<span class="dec">@safe_async</span>(catch=(<span class="type">aiohttp.ClientError</span>, <span class="type">asyncio.TimeoutError</span>))
+<span class="kw">async def</span> <span class="fn">fetch_json</span>(url: <span class="type">str</span>) -> <span class="type">dict</span>:
+    <span class="kw">async with</span> aiohttp.<span class="fn">ClientSession</span>() <span class="kw">as</span> session:
+        <span class="kw">async with</span> session.<span class="fn">get</span>(url) <span class="kw">as</span> response:
+            response.<span class="fn">raise_for_status</span>()
+            <span class="kw">return await</span> response.<span class="fn">json</span>()
+
+<span class="cm"># Returns Awaitable[Result[dict, aiohttp.ClientError | asyncio.TimeoutError]]</span>
+result = <span class="kw">await</span> <span class="fn">fetch_json</span>(<span class="str">"https://api.example.com/data"</span>)
+
+description = (
+    result
+    .map(<span class="kw">lambda</span> data: data[<span class="str">"weather"</span>][<span class="str">"description"</span>])
+    .unwrap_or(<span class="str">"unavailable"</span>)
+)</pre>
+</section>
+
+<!-- COLLECT -->
+<section id="collect">
+  <div class="section-label">Combinators</div>
+  <h2>collect</h2>
+  <p>Turns an iterable of <code>Result</code> values into a single <code>Result</code> containing a list. Returns <code>Ok([...])</code> if <em>all</em> results are Ok. Returns the <strong>first</strong> Err and stops immediately (fail-fast).</p>
+  <pre><span class="kw">from</span> resolute <span class="kw">import</span> collect
+
+<span class="fn">collect</span>([<span class="ok">Ok</span>(<span class="num">1</span>), <span class="ok">Ok</span>(<span class="num">2</span>), <span class="ok">Ok</span>(<span class="num">3</span>)])           <span class="cm"># Ok([1, 2, 3])</span>
+<span class="fn">collect</span>([<span class="ok">Ok</span>(<span class="num">1</span>), <span class="err">Err</span>(<span class="str">"bad"</span>), <span class="ok">Ok</span>(<span class="num">3</span>)])      <span class="cm"># Err("bad")  — stops here</span>
+<span class="fn">collect</span>([])                               <span class="cm"># Ok([])</span></pre>
+</section>
+
+<!-- COLLECT ALL -->
+<section class="alt" id="collect-all">
+  <div class="section-label">Combinators</div>
+  <h2>collect_all</h2>
+  <p>Like <code>collect</code>, but gathers <strong>all</strong> errors instead of stopping at the first. Essential for form validation where you want every field error in one pass.</p>
+  <pre><span class="kw">from</span> resolute <span class="kw">import</span> collect_all
+
+<span class="fn">collect_all</span>([<span class="ok">Ok</span>(<span class="num">1</span>), <span class="err">Err</span>(<span class="str">"a"</span>), <span class="ok">Ok</span>(<span class="num">3</span>), <span class="err">Err</span>(<span class="str">"b"</span>)])
+<span class="cm"># Err(["a", "b"])  — all errors collected</span>
+
+<span class="fn">collect_all</span>([<span class="ok">Ok</span>(<span class="num">1</span>), <span class="ok">Ok</span>(<span class="num">2</span>), <span class="ok">Ok</span>(<span class="num">3</span>)])
+<span class="cm"># Ok([1, 2, 3])</span></pre>
+
+  <pre><span class="cm"># Form validation — report all errors at once</span>
+results = [
+    <span class="fn">validate_username</span>(form.username),
+    <span class="fn">validate_email</span>(form.email),
+    <span class="fn">validate_age</span>(form.age),
+]
+
+<span class="kw">match</span> <span class="fn">collect_all</span>(results):
+    <span class="kw">case</span> <span class="ok">Ok</span>([username, email, age]):
+        <span class="fn">create_account</span>(username, email, age)
+    <span class="kw">case</span> <span class="err">Err</span>(errors):
+        <span class="fn">show_errors</span>(errors)   <span class="cm"># all validation errors at once</span></pre>
+</section>
+
+<!-- PARTITION -->
+<section id="partition">
+  <div class="section-label">Combinators</div>
+  <h2>partition / sequence / transpose</h2>
+
+  <h4>partition — split into two lists</h4>
+  <pre><span class="kw">from</span> resolute <span class="kw">import</span> partition
+
+oks, errs = <span class="fn">partition</span>([<span class="ok">Ok</span>(<span class="num">1</span>), <span class="err">Err</span>(<span class="str">"a"</span>), <span class="ok">Ok</span>(<span class="num">2</span>), <span class="err">Err</span>(<span class="str">"b"</span>)])
+<span class="cm"># oks  = [1, 2]</span>
+<span class="cm"># errs = ["a", "b"]</span></pre>
+
+  <h4>sequence — Option equivalent of collect</h4>
+  <pre><span class="kw">from</span> resolute <span class="kw">import</span> sequence
+
+<span class="fn">sequence</span>([<span class="some">Some</span>(<span class="num">1</span>), <span class="some">Some</span>(<span class="num">2</span>), <span class="some">Some</span>(<span class="num">3</span>)])   <span class="cm"># Some([1, 2, 3])</span>
+<span class="fn">sequence</span>([<span class="some">Some</span>(<span class="num">1</span>), Nothing, <span class="some">Some</span>(<span class="num">3</span>)])    <span class="cm"># Nothing</span></pre>
+
+  <h4>transpose / transpose_result — flip the types</h4>
+  <pre><span class="kw">from</span> resolute <span class="kw">import</span> transpose, transpose_result
+
+<span class="cm"># Option[Result] → Result[Option]</span>
+<span class="fn">transpose</span>(<span class="some">Some</span>(<span class="ok">Ok</span>(<span class="num">42</span>)))      <span class="cm"># Ok(Some(42))</span>
+<span class="fn">transpose</span>(<span class="some">Some</span>(<span class="err">Err</span>(<span class="str">"x"</span>)))   <span class="cm"># Err("x")</span>
+<span class="fn">transpose</span>(Nothing)          <span class="cm"># Ok(Nothing)</span>
+
+<span class="cm"># Result[Option] → Option[Result]</span>
+<span class="fn">transpose_result</span>(<span class="ok">Ok</span>(<span class="some">Some</span>(<span class="num">1</span>)))   <span class="cm"># Some(Ok(1))</span>
+<span class="fn">transpose_result</span>(<span class="ok">Ok</span>(Nothing))    <span class="cm"># Nothing</span>
+<span class="fn">transpose_result</span>(<span class="err">Err</span>(<span class="str">"x"</span>))      <span class="cm"># Some(Err("x"))</span></pre>
+</section>
+
+<!-- PHILOSOPHY -->
+<section class="alt" id="philosophy">
+  <div class="section-label">Design</div>
+  <h2>Philosophy</h2>
+
+  <div class="philosophy-grid">
+    <div class="philo-card">
+      <div class="philo-num">01</div>
+      <div class="philo-title">Errors in the contract</div>
+      <p>A function that can fail should declare it in its return type. Callers must handle both cases to get the value.</p>
+    </div>
+    <div class="philo-card green">
+      <div class="philo-num">02</div>
+      <div class="philo-title">Feels native to Python</div>
+      <p>Not a Haskell port. Not a Rust port. Every method name and design choice was made to feel natural to Python developers.</p>
+    </div>
+    <div class="philo-card blue">
+      <div class="philo-num">03</div>
+      <div class="philo-title">Adopt incrementally</div>
+      <p>Use <code>Result</code> in one module, exceptions in another. Wrap existing code with <code>@safe</code>. No big-bang rewrite required.</p>
+    </div>
+    <div class="philo-card" style="border-left-color:var(--some-color)">
+      <div class="philo-num">04</div>
+      <div class="philo-title">Zero dependencies</div>
+      <p><code>pip install resolute</code> is the full setup. No plugins. No configuration. No transitive dependencies.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT BELONGS -->
+<section id="what-belongs">
+  <div class="section-label">Guide</div>
+  <h2>What Belongs in Result</h2>
+  <p>The most important question when using <code>resolute</code>: <em>"Is this failure a valid state my program should respond to — or is it evidence that my code is wrong?"</em></p>
+
+  <table class="error-table">
+    <thead>
+      <tr>
+        <th>Situation</th>
+        <th>Right tool</th>
+        <th>Why</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>File not found</td>
+        <td><span class="tag tag-result">Result</span></td>
+        <td>Normal operation — files may not exist</td>
+      </tr>
+      <tr>
+        <td>Network timeout</td>
+        <td><span class="tag tag-result">Result</span></td>
+        <td>Networks fail — this is expected</td>
+      </tr>
+      <tr>
+        <td>Invalid user input</td>
+        <td><span class="tag tag-result">Result</span></td>
+        <td>Users type wrong things — handle it</td>
+      </tr>
+      <tr>
+        <td>Business rule violation</td>
+        <td><span class="tag tag-result">Result</span></td>
+        <td>Domain logic can legitimately fail</td>
+      </tr>
+      <tr>
+        <td>Database row not found</td>
+        <td><span class="tag tag-result">Result</span> or <span class="tag tag-result">Option</span></td>
+        <td>Absence is a valid query outcome</td>
+      </tr>
+      <tr>
+        <td><code>AttributeError</code> — called method on None</td>
+        <td><span class="tag tag-crash">Let it crash</span></td>
+        <td>This is a bug in your code, not a runtime condition</td>
+      </tr>
+      <tr>
+        <td><code>IndexError</code> — index out of range</td>
+        <td><span class="tag tag-crash">Let it crash</span></td>
+        <td>Logic error — your bounds checking is wrong</td>
+      </tr>
+      <tr>
+        <td><code>KeyboardInterrupt</code> — user pressed Ctrl+C</td>
+        <td><span class="tag tag-crash">Let it propagate</span></td>
+        <td>Program-termination signal, not a recoverable error</td>
+      </tr>
+      <tr>
+        <td><code>MemoryError</code> — system out of memory</td>
+        <td><span class="tag tag-crash">Let it propagate</span></td>
+        <td>Program state may be undefined — cannot recover safely</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- PATTERNS -->
+<section class="alt" id="patterns">
+  <div class="section-label">Guide</div>
+  <h2>Real-World Patterns</h2>
+
+  <h3>Railway-oriented chaining</h3>
+  <pre><span class="cm"># Each step can fail. The first failure short-circuits the chain.</span>
+result = (
+    <span class="fn">parse_int</span>(raw_input)           <span class="cm"># Step 1: parse</span>
+    .and_then(<span class="fn">ensure_positive</span>)     <span class="cm"># Step 2: validate</span>
+    .and_then(<span class="fn">lookup_in_database</span>) <span class="cm"># Step 3: query</span>
+    .map(<span class="kw">lambda</span> row: row.to_dict()) <span class="cm"># Step 4: transform</span>
+    .unwrap_or_else(<span class="kw">lambda</span> e: {<span class="str">"error"</span>: e})
+)</pre>
+
+  <h3>Nested lookups with Option</h3>
+  <pre><span class="cm"># Without Option: nested if-None checks</span>
+user = users.get(uid)
+<span class="kw">if</span> user <span class="kw">is not None</span>:
+    dept = depts.get(user.dept_id)
+    <span class="kw">if</span> dept <span class="kw">is not None</span>:
+        lead = leaders.get(dept.lead_id)
+        <span class="kw">if</span> lead <span class="kw">is not None</span>:
+            email = lead.email
+
+<span class="cm"># With Option: linear chain</span>
+email = (
+    <span class="fn">get_user</span>(uid)
+    .and_then(<span class="kw">lambda</span> u: <span class="fn">get_dept</span>(u.dept_id))
+    .and_then(<span class="kw">lambda</span> d: <span class="fn">get_leader</span>(d.lead_id))
+    .map(<span class="kw">lambda</span> lead: lead.email)
+    .unwrap_or(<span class="str">"no email"</span>)
+)</pre>
+
+  <h3>Collect all form errors</h3>
+  <pre><span class="kw">from</span> resolute <span class="kw">import</span> collect_all
+
+errors = <span class="fn">collect_all</span>([
+    <span class="fn">validate_username</span>(form.username),
+    <span class="fn">validate_email</span>(form.email),
+    <span class="fn">validate_age</span>(form.age),
+    <span class="fn">validate_password</span>(form.password),
+])
+
+<span class="cm"># Either all pass — or you get ALL failures in one list</span>
+<span class="kw">if</span> errors.is_err():
+    <span class="fn">return</span> Response({<span class="str">"errors"</span>: errors.unwrap_err()}, status=<span class="num">400</span>)</pre>
+</section>
+
+<!-- COMPARISON -->
+<section id="comparison">
+  <div class="section-label">Reference</div>
+  <h2>Comparison</h2>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>resolute</th>
+        <th>returns (dry-python)</th>
+        <th>result (rustedpy)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Zero dependencies</td><td><span class="yes">✓</span></td><td><span class="no">✗ (mypy plugin)</span></td><td><span class="yes">✓</span></td></tr>
+      <tr><td>Result type</td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+      <tr><td>Option type</td><td><span class="yes">✓</span></td><td><span class="yes">✓ (Maybe)</span></td><td><span class="no">✗</span></td></tr>
+      <tr><td>@safe decorator</td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td></tr>
+      <tr><td>@safe_async</td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td></tr>
+      <tr><td>collect / collect_all</td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td></tr>
+      <tr><td>partition</td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td></tr>
+      <tr><td>Pattern matching</td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+      <tr><td>Hashable (usable in sets/dicts)</td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td></tr>
+      <tr><td>Iterable</td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td></tr>
+      <tr><td>Enforced @safe catch types</td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- API REFERENCE -->
+<section class="alt" id="reference">
+  <div class="section-label">Reference</div>
+  <h2>API Reference</h2>
+
+  <h3>Result[T, E]</h3>
+  <table class="method-table">
+    <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>is_ok()</code></td><td><code>bool</code></td><td class="method-desc">True if Ok variant</td></tr>
+      <tr><td><code>is_err()</code></td><td><code>bool</code></td><td class="method-desc">True if Err variant</td></tr>
+      <tr><td><code>is_ok_and(f)</code></td><td><code>bool</code></td><td class="method-desc">True if Ok and predicate passes</td></tr>
+      <tr><td><code>is_err_and(f)</code></td><td><code>bool</code></td><td class="method-desc">True if Err and predicate passes</td></tr>
+      <tr><td><code>unwrap()</code></td><td><code>T</code></td><td class="method-desc">Ok value or raises UnwrapError</td></tr>
+      <tr><td><code>unwrap_or(default)</code></td><td><code>T</code></td><td class="method-desc">Ok value or default</td></tr>
+      <tr><td><code>unwrap_or_else(f)</code></td><td><code>T</code></td><td class="method-desc">Ok value or f(error)</td></tr>
+      <tr><td><code>unwrap_or_raise(exc)</code></td><td><code>T</code></td><td class="method-desc">Ok value or raises exc</td></tr>
+      <tr><td><code>unwrap_err()</code></td><td><code>E</code></td><td class="method-desc">Err value or raises UnwrapError</td></tr>
+      <tr><td><code>expect(msg)</code></td><td><code>T</code></td><td class="method-desc">Ok value or raises UnwrapError with msg</td></tr>
+      <tr><td><code>expect_err(msg)</code></td><td><code>E</code></td><td class="method-desc">Err value or raises UnwrapError with msg</td></tr>
+      <tr><td><code>map(f)</code></td><td><code>Result[U, E]</code></td><td class="method-desc">Transform Ok value; Err passes through</td></tr>
+      <tr><td><code>map_or(default, f)</code></td><td><code>U</code></td><td class="method-desc">f(ok) or default</td></tr>
+      <tr><td><code>map_or_else(df, f)</code></td><td><code>U</code></td><td class="method-desc">f(ok) or df(err)</td></tr>
+      <tr><td><code>map_err(f)</code></td><td><code>Result[T, F]</code></td><td class="method-desc">Transform Err value; Ok passes through</td></tr>
+      <tr><td><code>and_then(f)</code></td><td><code>Result[U, E]</code></td><td class="method-desc">Flatmap on Ok (chain)</td></tr>
+      <tr><td><code>or_else(f)</code></td><td><code>Result[T, F]</code></td><td class="method-desc">Recover from Err</td></tr>
+      <tr><td><code>and_(other)</code></td><td><code>Result[U, E]</code></td><td class="method-desc">Return other if Ok</td></tr>
+      <tr><td><code>or_(other)</code></td><td><code>Result[T, F]</code></td><td class="method-desc">Return self if Ok, else other</td></tr>
+      <tr><td><code>ok()</code></td><td><code>Option[T]</code></td><td class="method-desc">Convert to Option (Ok→Some, Err→Nothing)</td></tr>
+      <tr><td><code>err()</code></td><td><code>Option[E]</code></td><td class="method-desc">Convert error to Option (Err→Some, Ok→Nothing)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Option[T]</h3>
+  <table class="method-table">
+    <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>is_some()</code></td><td><code>bool</code></td><td class="method-desc">True if Some variant</td></tr>
+      <tr><td><code>is_nothing()</code></td><td><code>bool</code></td><td class="method-desc">True if Nothing</td></tr>
+      <tr><td><code>is_some_and(f)</code></td><td><code>bool</code></td><td class="method-desc">True if Some and predicate passes</td></tr>
+      <tr><td><code>unwrap()</code></td><td><code>T</code></td><td class="method-desc">Value or raises UnwrapError</td></tr>
+      <tr><td><code>unwrap_or(default)</code></td><td><code>T</code></td><td class="method-desc">Value or default</td></tr>
+      <tr><td><code>unwrap_or_else(f)</code></td><td><code>T</code></td><td class="method-desc">Value or f()</td></tr>
+      <tr><td><code>unwrap_or_raise(exc)</code></td><td><code>T</code></td><td class="method-desc">Value or raises exc</td></tr>
+      <tr><td><code>expect(msg)</code></td><td><code>T</code></td><td class="method-desc">Value or raises UnwrapError with msg</td></tr>
+      <tr><td><code>map(f)</code></td><td><code>Option[U]</code></td><td class="method-desc">Transform Some value; Nothing passes through</td></tr>
+      <tr><td><code>map_or(default, f)</code></td><td><code>U</code></td><td class="method-desc">f(value) or default</td></tr>
+      <tr><td><code>map_or_else(df, f)</code></td><td><code>U</code></td><td class="method-desc">f(value) or df()</td></tr>
+      <tr><td><code>filter(pred)</code></td><td><code>Option[T]</code></td><td class="method-desc">Some if predicate passes, else Nothing</td></tr>
+      <tr><td><code>and_then(f)</code></td><td><code>Option[U]</code></td><td class="method-desc">Flatmap on Some (chain)</td></tr>
+      <tr><td><code>or_else(f)</code></td><td><code>Option[T]</code></td><td class="method-desc">Recover from Nothing</td></tr>
+      <tr><td><code>and_(other)</code></td><td><code>Option[U]</code></td><td class="method-desc">Return other if Some</td></tr>
+      <tr><td><code>or_(other)</code></td><td><code>Option[T]</code></td><td class="method-desc">Return self if Some, else other</td></tr>
+      <tr><td><code>zip(other)</code></td><td><code>Option[(T,U)]</code></td><td class="method-desc">Combine two Somes into a tuple</td></tr>
+      <tr><td><code>flatten()</code></td><td><code>Option[T]</code></td><td class="method-desc">Flatten Option[Option[T]]</td></tr>
+      <tr><td><code>ok_or(error)</code></td><td><code>Result[T, E]</code></td><td class="method-desc">Some→Ok, Nothing→Err(error)</td></tr>
+      <tr><td><code>ok_or_else(f)</code></td><td><code>Result[T, E]</code></td><td class="method-desc">Some→Ok, Nothing→Err(f())</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Combinators</h3>
+  <table class="method-table">
+    <thead><tr><th>Function</th><th>Returns</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>collect(results)</code></td><td><code>Result[List[T], E]</code></td><td class="method-desc">All Ok or first Err (fail-fast)</td></tr>
+      <tr><td><code>collect_all(results)</code></td><td><code>Result[List[T], List[E]]</code></td><td class="method-desc">All Ok or all Errs collected</td></tr>
+      <tr><td><code>partition(results)</code></td><td><code>(List[T], List[E])</code></td><td class="method-desc">Split into ok values and error values</td></tr>
+      <tr><td><code>sequence(options)</code></td><td><code>Option[List[T]]</code></td><td class="method-desc">All Some or Nothing</td></tr>
+      <tr><td><code>transpose(opt)</code></td><td><code>Result[Option[T], E]</code></td><td class="method-desc">Option[Result] → Result[Option]</td></tr>
+      <tr><td><code>transpose_result(r)</code></td><td><code>Option[Result[T, E]]</code></td><td class="method-desc">Result[Option] → Option[Result]</td></tr>
+      <tr><td><code>flatten_result(r)</code></td><td><code>Result[T, E]</code></td><td class="method-desc">Flatten Result[Result[T,E],E]</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  <div>resolute &mdash; MIT License</div>
+  <div>
+    <a href="#overview">Back to top</a>
+  </div>
+</footer>
+
+</main>
+</div>
+
+<script>
+  // Scroll spy — highlight active nav link
+  const sections = document.querySelectorAll('section[id], div[id]');
+  const links    = document.querySelectorAll('nav a[href^="#"]');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
