@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "resolute"
-version = "0.1.0"
+version = "0.2.0"
 description = "Result and Option types for Python — zero dependencies, fully typed"
 readme = "README.md"
 license = { text = "MIT" }
@@ -13,12 +13,6 @@ authors = [
     { name = "Chukwunwike", email = "chuks@example.com" },
 ]
 dependencies = []
-
-[project.urls]
-Homepage = "https://github.com/chukwunwike/resolute"
-Repository = "https://github.com/chukwunwike/resolute"
-Documentation = "https://github.com/chukwunwike/resolute#readme"
-Issues = "https://github.com/chukwunwike/resolute/issues"
 
 keywords = ["result", "option", "error-handling", "types", "functional"]
 classifiers = [
@@ -32,6 +26,12 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Typing :: Typed",
 ]
+
+[project.urls]
+Homepage = "https://github.com/chukwunwike/resolute"
+Repository = "https://github.com/chukwunwike/resolute"
+Documentation = "https://github.com/chukwunwike/resolute#readme"
+Issues = "https://github.com/chukwunwike/resolute/issues"
 
 [project.optional-dependencies]
 dev = [
