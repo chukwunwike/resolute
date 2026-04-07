@@ -1245,7 +1245,7 @@ Contributions are welcome. Please open an issue before submitting a pull request
 
 When contributing:
 - Add tests for any new behaviour
-- Ensure the test suite passes: `python3 run_tests.py`
+- Ensure the test suite passes: `python3 tests/run_tests.py`
 - Follow the existing code style — type annotations on all public methods, docstrings with examples
 
 ---

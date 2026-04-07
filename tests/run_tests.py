@@ -7,7 +7,8 @@ import traceback
 import warnings
 import asyncio
 
-sys.path.insert(0, "/home/claude/resolute")
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from resolute import (
     Ok, Err, Result, Some, Nothing, Option,
