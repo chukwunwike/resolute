@@ -58,10 +58,15 @@ The signature `Result[float, str]` is a contract: *"I will give you either a flo
   - [Chaining Options](#chaining-options)
   - [Converting to Result](#converting-to-result)
   - [The Nothing singleton](#the-nothing-singleton)
+- [Do-Notation](#do-notation)
+  - [Result with @do](#result-with-do)
+  - [Option with @do\_option](#option-with-do_option)
+- [Error Context](#error-context)
 - [Decorators](#decorators)
   - [@safe](#safe)
   - [@safe\_async](#safe_async)
   - [What @safe will never catch](#what-safe-will-never-catch)
+- [Async Helpers](#async-helpers)
 - [Combinators](#combinators)
   - [collect](#collect)
   - [collect\_all](#collect_all)
@@ -634,6 +639,74 @@ It also means `Nothing == Nothing` is always True, and `Nothing is Nothing` is a
 
 ---
 
+## Do-Notation
+
+When you have long chains of `Result` operations, `.and_then` can sometimes become deeply nested or require passing multiple variables through closures. `resolute` provides a generator-based "do-notation" via the `@do()` and `@do_option()` decorators to write flat, imperatively-structured code.
+
+### Result with @do
+
+Yield a `Result` to unwrap its value. If it's an `Err`, the generator immediately short-circuits and returns that `Err`.
+
+```python
+from resolute import do, Ok, Err, Result
+
+def fetch_user() -> Result[dict, str]: ...
+def fetch_profile(uid: int) -> Result[dict, str]: ...
+
+@do()
+def get_user_profile() -> Result[dict, str]:
+    user = yield fetch_user()            # Returns dict if Ok, short-circuits if Err
+    profile = yield fetch_profile(user["id"])
+    return {**user, **profile}           # Returns Ok({ ... }) automatically
+```
+
+### Option with @do_option
+
+The same syntax works for `Option` using `@do_option()`. Yielding `Nothing` immediately returns `Nothing`.
+
+```python
+from resolute import do_option, Some, Nothing, Option
+
+@do_option()
+def get_leader_email(user_id: int) -> Option[str]:
+    user = yield get_user(user_id)
+    dept = yield get_dept(user["dept_id"])
+    leader = yield get_leader(dept["lead_id"])
+    return leader["email"]               # Returns Some(...) automatically
+```
+
+---
+
+## Error Context
+
+When an error propagates up the call stack, you often want to add context to explain *where* the error happened, without losing the original root cause. `resolute` provides `.context()` and `.with_context()`.
+
+```python
+from resolute import Ok, Err, Result
+
+def read_file(path: str) -> Result[str, str]:
+    return Err("Permission denied")
+
+def load_config() -> Result[str, Exception]:
+    return read_file("/etc/config.json").context("Failed to load configuration")
+
+result = load_config()
+# Err(ContextError("Failed to load configuration"))
+```
+
+Under the hood, `ContextError` wraps the original error using Python's `__cause__` mechanism. If you `raise result.unwrap_err()`, Python will print a standard traceback showing:
+
+```text
+ContextError: Failed to load configuration
+
+The above exception was the direct cause of the following exception:
+...
+```
+
+You can also use `.with_context(lambda e: ...)` if the context message is expensive to compute, as it will only execute if the `Result` is `Err`.
+
+---
+
 ## Decorators
 
 ### @safe
@@ -724,6 +797,30 @@ If you have a genuine reason to catch all exceptions, acknowledge it explicitly:
 @safe(catch=Exception, allow_broad=True)   # no warning
 def intentionally_broad():
     ...
+```
+
+---
+
+## Async Helpers
+
+Mixing sync `Result` methods with `async` functions can feel clunky if you have to `await` inside `.and_then()` closures. `resolute` bridges this gap with its async helpers.
+
+**`from_awaitable(awaitable)`** — Awaits an awaitable and wraps expected exceptions in `Result`.
+
+**`map_async(result, async_func)`** — If Ok, awaits `async_func(value)` and wraps the result in `Ok`. If Err, returns the Err immediately.
+
+**`and_then_async(result, async_func)`** — Like `map_async`, but `async_func` must return a `Result`.
+
+```python
+import asyncio
+from resolute import Ok, Err, Result, and_then_async
+
+async def fetch_user(uid: int) -> Result[dict, str]: ...
+async def fetch_posts(user: dict) -> Result[list, str]: ...
+
+async def get_user_posts(uid: int) -> Result[list, str]:
+    user_res = await fetch_user(uid)
+    return await and_then_async(user_res, fetch_posts)
 ```
 
 ---

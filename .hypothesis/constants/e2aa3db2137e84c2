@@ -1,0 +1,4 @@
+# file: C:\Users\chuks\Downloads\resolute\resolute\__init__.py
+# hypothesis_version: 6.151.11
+
+['0.2.0', 'ContextError', 'Err', 'MIT', 'Nothing', 'Ok', 'Option', 'Result', 'SafeDecoratorError', 'Some', 'UnwrapError', 'and_then_async', 'collect', 'collect_all', 'do', 'do_option', 'flatten_result', 'from_awaitable', 'map_async', 'partition', 'safe', 'safe_async', 'sequence', 'transpose', 'transpose_result']

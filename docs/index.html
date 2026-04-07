@@ -541,10 +541,15 @@
   <a href="#chaining">Chaining</a>
   <a href="#converting">Converting</a>
   <a href="#pattern-matching">Pattern Matching</a>
+  <a href="#context-propagation">Error Context</a>
 
   <div class="nav-section">Decorators</div>
+  <a href="#do-notation">@do / @do_option</a>
   <a href="#safe">@safe</a>
   <a href="#safe-async">@safe_async</a>
+
+  <div class="nav-section">Async</div>
+  <a href="#async-helpers">Async Helpers</a>
 
   <div class="nav-section">Combinators</div>
   <a href="#collect">collect</a>
@@ -934,6 +939,31 @@ Nothing.ok_or_else(<span class="kw">lambda</span>: <span class="fn">build_error<
         <span class="fn">handle_error</span>(e)</pre>
 </section>
 
+<!-- CONTEXT PROPAGATION -->
+<section id="context-propagation">
+  <div class="section-label">Methods</div>
+  <h2>Error Context</h2>
+  <p>Attach additional context to <code>Err</code> values without losing the original error cause. This works much like Rust's <code>.context()</code>, chaining errors together in the traceback.</p>
+
+  <h4>.context(message)</h4>
+  <p>If Err, wraps the error in a <code>ContextError</code> with the given message. If Ok, passes through.</p>
+  <pre><span class="kw">from</span> resolute <span class="kw">import</span> ContextError
+
+<span class="kw">def</span> <span class="fn">read_config</span>() -> <span class="type">Result</span>[<span class="type">str</span>, <span class="type">Exception</span>]:
+    <span class="kw">return</span> <span class="fn">read_file</span>(<span class="str">"config.json"</span>).context(<span class="str">"Failed to load config"</span>)
+
+result = <span class="fn">read_config</span>()
+<span class="kw">if</span> result.is_err():
+    err = result.unwrap_err()
+    <span class="fn">print</span>(<span class="fn">type</span>(err))       <span class="cm"># &lt;class 'resolute.ContextError'&gt;</span>
+    <span class="fn">print</span>(err)             <span class="cm"># "Failed to load config"</span>
+    <span class="fn">print</span>(err.__cause__)   <span class="cm"># FileNotFoundError(...)</span></pre>
+
+  <h4>.with_context(f)</h4>
+  <p>Like <code>.context()</code>, but computes the message lazily by calling <code>f()</code> ONLY if the result is an <code>Err</code>.</p>
+  <pre>result = <span class="fn">read_file</span>(path).with_context(<span class="kw">lambda</span>: <span class="str">f"Failed to read from {path}"</span>)</pre>
+</section>
+
 <!-- @safe -->
 <section id="safe">
   <div class="section-label">Decorator</div>
@@ -995,6 +1025,67 @@ description = (
     .map(<span class="kw">lambda</span> data: data[<span class="str">"weather"</span>][<span class="str">"description"</span>])
     .unwrap_or(<span class="str">"unavailable"</span>)
 )</pre>
+</section>
+
+<!-- DO NOTATION -->
+<section id="do-notation">
+  <div class="section-label">Decorator</div>
+  <h2>@do / @do_option</h2>
+  <p>Write sequential code without nesting by yielding <code>Result</code> or <code>Option</code> values. This provides syntactic sugar similar to Haskell's <code>do</code> or Rust's <code>?</code> operator.</p>
+
+  <pre><span class="kw">from</span> resolute <span class="kw">import</span> do, Ok, Err, Result
+<span class="kw">from</span> typing <span class="kw">import</span> Generator, Any
+
+<span class="dec">@do</span>()
+<span class="kw">def</span> <span class="fn">process_user</span>(user_id: <span class="type">int</span>) -> <span class="type">Generator</span>[<span class="type">Result</span>[<span class="type">Any</span>, <span class="type">str</span>], <span class="type">Any</span>, <span class="type">Result</span>[<span class="type">int</span>, <span class="type">str</span>]]:
+    <span class="cm"># Yielding a Result unwraps the Ok value.</span>
+    <span class="cm"># If it's an Err, the generator early-returns that Err.</span>
+    user = <span class="kw">yield</span> <span class="fn">get_user</span>(user_id)
+    profile = <span class="kw">yield</span> <span class="fn">get_profile</span>(user.profile_id)
+    
+    <span class="kw">if not</span> profile.is_active:
+        <span class="cm"># You can explicitly return early</span>
+        <span class="kw">return</span> <span class="err">Err</span>(<span class="str">"profile inactive"</span>)
+        
+    <span class="kw">return</span> <span class="ok">Ok</span>(profile.score)
+
+<span class="cm"># The decorated function returns a Result, not a Generator!</span>
+result = <span class="fn">process_user</span>(<span class="num">1</span>)
+<span class="fn">print</span>(result)  <span class="cm"># Ok(100) or Err(...)</span></pre>
+
+  <h4>@do_option</h4>
+  <p>The equivalent for <code>Option</code> chains. Yielding <code>Nothing</code> short-circuits the function.</p>
+  <pre><span class="kw">from</span> resolute <span class="kw">import</span> do_option, Some, Nothing, Option
+
+<span class="dec">@do_option</span>()
+<span class="kw">def</span> <span class="fn">get_score</span>(user_id: <span class="type">int</span>) -> <span class="type">Generator</span>[<span class="type">Option</span>[<span class="type">Any</span>], <span class="type">Any</span>, <span class="type">Option</span>[<span class="type">int</span>]]:
+    user = <span class="kw">yield</span> <span class="fn">get_user</span>(user_id)
+    profile = <span class="kw">yield</span> <span class="fn">get_profile</span>(user.profile_id)
+    <span class="kw">return</span> <span class="some">Some</span>(profile.score)</pre>
+</section>
+
+<!-- ASYNC HELPERS -->
+<section class="alt" id="async-helpers">
+  <div class="section-label">Async</div>
+  <h2>Async Helpers</h2>
+  <p>For bridging asynchronous tasks with synchronous <code>Result</code> pipelines.</p>
+
+  <h4>from_awaitable(coro) / map_async / and_then_async</h4>
+  <pre><span class="kw">import</span> asyncio
+<span class="kw">from</span> resolute <span class="kw">import</span> from_awaitable, map_async, and_then_async
+
+<span class="kw">async def</span> <span class="fn">fetch_data</span>() -> <span class="type">str</span>: ...
+
+<span class="kw">async def</span> <span class="fn">process</span>():
+    <span class="cm"># Wrap an awaitable that might raise into a Result</span>
+    res = <span class="kw">await</span> <span class="fn">from_awaitable</span>(<span class="fn">fetch_data</span>(), catch=<span class="type">Exception</span>)
+    
+    <span class="cm"># Chain async functions onto a Result</span>
+    <span class="kw">async def</span> <span class="fn">async_transform</span>(x: <span class="type">str</span>) -> <span class="type">int</span>: <span class="kw">return</span> <span class="fn">len</span>(x)
+    <span class="kw">async def</span> <span class="fn">async_fetch_more</span>(x: <span class="type">int</span>) -> <span class="type">Result</span>[<span class="type">int</span>, <span class="type">str</span>]: <span class="kw">return</span> <span class="ok">Ok</span>(x * <span class="num">2</span>)
+    
+    mapped = <span class="kw">await</span> <span class="fn">map_async</span>(res, <span class="fn">async_transform</span>)
+    chained = <span class="kw">await</span> <span class="fn">and_then_async</span>(mapped, <span class="fn">async_fetch_more</span>)</pre>
 </section>
 
 <!-- COLLECT -->
@@ -1230,6 +1321,8 @@ errors = <span class="fn">collect_all</span>([
       <tr><td>Option type</td><td><span class="yes">✓</span></td><td><span class="yes">✓ (Maybe)</span></td><td><span class="no">✗</span></td></tr>
       <tr><td>@safe decorator</td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td></tr>
       <tr><td>@safe_async</td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td></tr>
+      <tr><td>do-notation (yield)</td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
+      <tr><td>Error context chains</td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td></tr>
       <tr><td>collect / collect_all</td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td></tr>
       <tr><td>partition</td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td></tr>
       <tr><td>Pattern matching</td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
@@ -1266,6 +1359,8 @@ errors = <span class="fn">collect_all</span>([
       <tr><td><code>map_err(f)</code></td><td><code>Result[T, F]</code></td><td class="method-desc">Transform Err value; Ok passes through</td></tr>
       <tr><td><code>and_then(f)</code></td><td><code>Result[U, E]</code></td><td class="method-desc">Flatmap on Ok (chain)</td></tr>
       <tr><td><code>or_else(f)</code></td><td><code>Result[T, F]</code></td><td class="method-desc">Recover from Err</td></tr>
+      <tr><td><code>context(msg)</code></td><td><code>Result[T, ContextError]</code></td><td class="method-desc">Add context to Err</td></tr>
+      <tr><td><code>with_context(f)</code></td><td><code>Result[T, ContextError]</code></td><td class="method-desc">Add lazy context to Err</td></tr>
       <tr><td><code>and_(other)</code></td><td><code>Result[U, E]</code></td><td class="method-desc">Return other if Ok</td></tr>
       <tr><td><code>or_(other)</code></td><td><code>Result[T, F]</code></td><td class="method-desc">Return self if Ok, else other</td></tr>
       <tr><td><code>ok()</code></td><td><code>Option[T]</code></td><td class="method-desc">Convert to Option (Ok→Some, Err→Nothing)</td></tr>
