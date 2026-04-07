@@ -320,6 +320,39 @@ class Result(Generic[T, E]):
         return _Nothing
 
     # ------------------------------------------------------------------ #
+    # Context propagation
+    # ------------------------------------------------------------------ #
+
+    def context(self, message: str) -> "Result[T, Any]":
+        """
+        Add context to an Err. If Ok, passes through unchanged.
+
+            Err("not found").context("loading user config")
+            # Err(ContextError("loading user config", "not found"))
+
+        This is inspired by Rust's `.context()` from the `anyhow` crate.
+        It wraps the original error in a ContextError that preserves
+        the full error chain, similar to Python's `raise ... from ...`.
+        """
+        from ._context import ContextError
+        if isinstance(self, Err):
+            return Err(ContextError(message, cast(E, self._error)))
+        return self
+
+    def with_context(self, f: Callable[[], str]) -> "Result[T, Any]":
+        """
+        Add context lazily — f() is only called if this is Err.
+
+            result.with_context(lambda: f"Failed to process {filename}")
+
+        Use this when building the context message is expensive.
+        """
+        from ._context import ContextError
+        if isinstance(self, Err):
+            return Err(ContextError(f(), cast(E, self._error)))
+        return self
+
+    # ------------------------------------------------------------------ #
     # Iteration support
     # ------------------------------------------------------------------ #
 

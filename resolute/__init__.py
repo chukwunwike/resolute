@@ -64,6 +64,15 @@ from ._combinators import (
 # Exceptions
 from ._exceptions import UnwrapError, SafeDecoratorError
 
+# Context propagation
+from ._context import ContextError
+
+# Async helpers
+from ._async_helpers import from_awaitable, map_async, and_then_async
+
+# Do-notation
+from ._do import do, do_option
+
 __all__ = [
     # Result
     "Result",
@@ -87,8 +96,18 @@ __all__ = [
     # Exceptions
     "UnwrapError",
     "SafeDecoratorError",
+    # Context propagation
+    "ContextError",
+    # Async helpers
+    "from_awaitable",
+    "map_async",
+    "and_then_async",
+    # Do-notation
+    "do",
+    "do_option",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "resolute contributors"
 __license__ = "MIT"
+
