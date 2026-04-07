@@ -33,6 +33,10 @@ dev = [
     "pyright",
     "hypothesis",
     "typing_extensions",
+    "pytest-benchmark",
+    "fastapi",
+    "httpx",
+    "pydantic",
 ]
 
 [tool.pytest.ini_options]
