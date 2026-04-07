@@ -665,7 +665,7 @@ class TestCollect:
             called.append(x)
             return Ok(x)
 
-        collect([make(1), Err("stop"), make(3)])
+        collect(make(x) if x != 2 else Err("stop") for x in [1, 2, 3])
         assert 3 not in called  # never evaluated — short-circuited
 
 
