@@ -21,19 +21,18 @@ class ContextError(Exception):
     so tracebacks show the full chain naturally.
     """
 
-    def __init__(self, message: str, cause: object) -> None:
+    def __init__(self, message: str, original: object = None) -> None:
         super().__init__(message)
         self.message = message
-        self.cause = cause
-        # Standard Python exception chaining
-        if isinstance(cause, BaseException):
-            self.__cause__ = cause
+        self.cause = original
+        if isinstance(original, BaseException):
+            self.__cause__ = original   # enables "The above exception was..." traceback
 
     def __str__(self) -> str:
         return f"{self.message}: {self.cause}"
 
     def __repr__(self) -> str:
-        return f"ContextError({self.message!r}, {self.cause!r})"
+        return f"ContextError({self.message!r}, cause={self.cause!r})"
 
     def chain(self) -> list[object]:
         """

@@ -69,6 +69,10 @@ def do() -> Callable[
     """
     Decorator that enables generator-based do-notation for Results.
 
+    TYPE CHECKER NOTE:
+    Always annotate the return type explicitly — pyright and mypy cannot
+    infer it from the generator body.
+
     Yield a Result to "unwrap" it — if it's Ok, the value is sent back.
     If it's Err, execution stops and that Err is returned immediately.
 
@@ -155,6 +159,10 @@ def do_option() -> Callable[
 ]:
     """
     Decorator that enables generator-based do-notation for Options.
+
+    TYPE CHECKER NOTE:
+    Always annotate the return type explicitly — pyright and mypy cannot
+    infer it from the generator body.
 
     Yield an Option to "unwrap" it — if it's Some, the value is sent back.
     If it's Nothing, execution stops and Nothing is returned immediately.

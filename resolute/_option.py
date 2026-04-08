@@ -68,6 +68,16 @@ class Option(Generic[T]):
             return predicate(cast(T, self._value))
         return False
 
+    @classmethod
+    def of(cls, value: T | None) -> "Option[T]":
+        """Wrap a nullable value. Returns Nothing for None, Some(value) otherwise.
+        
+        Use this instead of Some() when the value might be None:
+            Option.of(user.email)   # Nothing if email is None, Some(email) otherwise
+            Some(user.email)        # Some(None) — almost certainly a bug
+        """
+        return Nothing if value is None else Some(value)
+
     # ------------------------------------------------------------------ #
     # Extracting values
     # ------------------------------------------------------------------ #

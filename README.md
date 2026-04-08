@@ -496,6 +496,12 @@ from resolute import Some, Nothing, Option
 # Wrapping a value
 o: Option[int] = Some(42)
 
+# SAFE — None becomes Nothing
+o = Option.of(user.email)   # Nothing if email is None
+
+# FOOTGUN — None becomes Some(None)
+o = Some(user.email)        # Some(None) — is_some() returns True!
+
 # Representing absence
 o: Option[int] = Nothing
 
@@ -648,6 +654,24 @@ When you have long chains of `Result` operations, `.and_then` can sometimes beco
 Yield a `Result` to unwrap its value. If it's an `Err`, the generator immediately short-circuits and returns that `Err`.
 
 ```python
+# TYPE CHECKER NOTE:
+# Always annotate the return type explicitly — pyright and mypy cannot
+# infer it from the generator body.
+#
+# WORKS:
+@do()
+def get_profile() -> Result[dict, str]:   # ← required
+    user = yield fetch_user()
+    return user
+
+# BREAKS type inference (checker sees Generator[...], not Result):
+@do()
+def get_profile():    # ← no annotation = no narrowing inside body
+    user = yield fetch_user()
+    return user
+```
+
+```python
 from resolute import do, Ok, Err, Result
 
 def fetch_user() -> Result[dict, str]: ...
@@ -663,6 +687,24 @@ def get_user_profile() -> Result[dict, str]:
 ### Option with @do_option
 
 The same syntax works for `Option` using `@do_option()`. Yielding `Nothing` immediately returns `Nothing`.
+
+```python
+# TYPE CHECKER NOTE:
+# Always annotate the return type explicitly — pyright and mypy cannot
+# infer it from the generator body.
+#
+# WORKS:
+@do_option()
+def get_profile() -> Option[dict]:   # ← required
+    user = yield fetch_user()
+    return user
+
+# BREAKS type inference (checker sees Generator[...], not Option):
+@do_option()
+def get_profile():    # ← no annotation = no narrowing inside body
+    user = yield fetch_user()
+    return user
+```
 
 ```python
 from resolute import do_option, Some, Nothing, Option
@@ -704,6 +746,8 @@ The above exception was the direct cause of the following exception:
 ```
 
 You can also use `.with_context(lambda e: ...)` if the context message is expensive to compute, as it will only execute if the `Result` is `Err`.
+
+Type note: `.context()` changes the error type from `E` to `ContextError`. If you need to access the original error downstream, use `.unwrap_err().cause`. If you want to preserve the original error type, use `.map_err()` with a custom wrapper instead.
 
 ---
 
