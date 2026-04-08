@@ -20,3 +20,8 @@ htmlcov/
 .coverage
 coverage.xml
 *.log
+
+# Dev artifacts
+*_REPORT.txt
+gh_logs.txt
+.hypothesis/
