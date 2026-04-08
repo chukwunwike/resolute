@@ -1,4 +1,0 @@
-# file: C:\Users\chuks\Downloads\resolute\resolute\_result.py
-# hypothesis_version: 6.151.11
-
-['E', 'Err', 'F', 'Ok', 'Option[E]', 'Option[T]', 'Result[T, F]', 'Result[U, E]', 'T', 'U', '_error', '_value']

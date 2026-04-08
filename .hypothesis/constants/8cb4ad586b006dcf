@@ -1,4 +1,0 @@
-# file: C:\Users\chuks\Downloads\resolute\resolute\__init__.py
-# hypothesis_version: 6.151.11
-
-['0.1.0', 'Err', 'MIT', 'Nothing', 'Ok', 'Option', 'Result', 'SafeDecoratorError', 'Some', 'UnwrapError', 'collect', 'collect_all', 'flatten_result', 'partition', 'safe', 'safe_async', 'sequence', 'transpose', 'transpose_result']
