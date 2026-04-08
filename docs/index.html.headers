@@ -1,0 +1,62 @@
+<h1>Make your<br /><em>errors visible.</em></h1>
+<h2>Installation</h2>
+<h2>Quick Start</h2>
+<h3 style="margin-top:0">Before</h3>
+<h3 style="margin-top:0">After</h3>
+<h3>Core types at a glance</h3>
+<h2>Result[T, E]</h2>
+<h2>Option[T]</h2>
+<h3>When to use Option vs Result</h3>
+<h2>Checking the Variant</h2>
+<h4>Result</h4>
+<h4>Option</h4>
+<h2>Extracting Values</h2>
+<h4>.unwrap()</h4>
+<h4>.unwrap_or(default)</h4>
+<h4>.unwrap_or_else(f)</h4>
+<h4>.unwrap_or_raise(exc)</h4>
+<h4>.expect(message)</h4>
+<h2>Transforming Values</h2>
+<h4>.map(f) — transform the success value</h4>
+<h4>.map_err(f) — transform the error value</h4>
+<h4>.map_or(default, f) and .map_or_else(default_f, f)</h4>
+<h2>Chaining</h2>
+<h4>.and_then(f) — the core composition operator</h4>
+<h4>.or_else(f) — recover from failure</h4>
+<h4>Option extras — .zip() and .flatten()</h4>
+<h2>Converting Between Types</h2>
+<h4>Result → Option</h4>
+<h4>Option → Result</h4>
+<h2>Pattern Matching</h2>
+<h2>Error Context</h2>
+<h4>.context(message)</h4>
+<h4>.with_context(f)</h4>
+<h2>@safe</h2>
+<h4>Multiple exception types</h4>
+<h4>Safety rules enforced at decoration time</h4>
+<h2>@safe_async</h2>
+<h2>@do / @do_option</h2>
+<h4>@do_option</h4>
+<h2>Async Helpers</h2>
+<h4>from_awaitable(coro) / map_async / and_then_async</h4>
+<h2>collect</h2>
+<h2>collect_all</h2>
+<h2>partition / sequence / transpose</h2>
+<h4>partition — split into two lists</h4>
+<h4>sequence — Option equivalent of collect</h4>
+<h4>transpose / transpose_result — flip the types</h4>
+<h2>Philosophy</h2>
+<h2>What Belongs in Result</h2>
+<h2>Real-World Patterns</h2>
+<h3>Railway-oriented chaining</h3>
+<h3>Nested lookups with Option</h3>
+<h3>Collect all form errors</h3>
+<h2>Comparison</h2>
+<h2>Modern Integrations</h2>
+<h3>FastAPI</h3>
+<h3>Pydantic v2</h3>
+<h2>Performance Benchmarks</h2>
+<h2>API Reference</h2>
+<h3>Result[T, E]</h3>
+<h3>Option[T]</h3>
+<h3>Combinators</h3>

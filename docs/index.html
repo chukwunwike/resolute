@@ -910,6 +910,13 @@ result <span class="kw">is</span> Nothing  <span class="cm"># True — singleton
           </div>
         </div>
 
+        <p>
+          <strong>Option.of(value)</strong> — A safe way to wrap any value.
+          Returns <code>Nothing</code> if the value is <code>None</code>, otherwise <code>Some(value)</code>.
+        </p>
+        <pre><span class="type">Option</span>.of(<span class="kw">None</span>)    <span class="cm"># Nothing</span>
+<span class="type">Option</span>.of(<span class="str">"data"</span>)  <span class="cm"># Some("data")</span></pre>
+
         <h3>When to use Option vs Result</h3>
         <p>Use <strong>Option</strong> when absence is normal and expected — a user preference that might not be set, a
           cache entry that might not exist. The absence is not a failure.</p>

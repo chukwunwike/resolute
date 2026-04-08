@@ -1145,6 +1145,33 @@ def handle_profile_request(user_id: int) -> Response:
     )
 ```
 
+### FastAPI Integration
+
+When building REST APIs, you often need to unwrap a `Result` or `Option` and immediately raise an HTTP exception if it failed/is missing. `resolute` provides a non-intrusive integration for this:
+
+```python
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from resolute import Result, Ok, Err
+from resolute.integrations.fastapi import unwrap_or_http
+
+app = FastAPI()
+
+def get_user_from_db(user_id: int) -> Result[dict, str]:
+    if user_id != 1:
+        return Err("User not found in database")
+    return Ok({"id": 1, "name": "Archy"})
+
+@app.get("/users/{user_id}")
+async def get_user(user_id: int):
+    # If Ok, returns the user dict.
+    # If Err, automatically raises HTTPException(status_code=404, detail="User not found in database")
+    user = unwrap_or_http(get_user_from_db(user_id), status_code=404)
+    return user
+```
+
+The integration handles both `Result` and `Option` values seamlessly.
+
 ---
 
 ### HTTP API calls
