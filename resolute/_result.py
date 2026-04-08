@@ -83,6 +83,16 @@ class Result(Generic[T, E]):
             return predicate(cast(Err[T, E], self)._error)
         return False
 
+    @classmethod
+    def from_optional(cls, value: T | None, error: E) -> "Result[T, E]":
+        """
+        Wrap a nullable value. Returns Ok(value) if not None, Err(error) otherwise.
+
+        Useful for interfacing with traditional Python APIs:
+            Result.from_optional(db.find(uid), "user not found")
+        """
+        return Ok(value) if value is not None else Err(error)
+
     # ------------------------------------------------------------------ #
     # Extracting values (safe)
     # ------------------------------------------------------------------ #

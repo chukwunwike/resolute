@@ -1,5 +1,8 @@
 # resolute
 
+[![Tests](https://github.com/chukwunwike/resolute/actions/workflows/tests.yml/badge.svg)](https://github.com/chukwunwike/resolute/actions/workflows/tests.yml)
+
+
 > **Result and Option types for Python — zero dependencies, fully typed.**
 
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
@@ -142,6 +145,10 @@ def parse_float(s: str) -> float:
 
 parse_float("3.14")   # Ok(3.14)
 parse_float("abc")    # Err(ValueError("could not convert string to float: 'abc'"))
+
+# Bridge nullable values
+Result.from_optional(os.environ.get("PORT"), "PORT not set")
+# Ok("8080") or Err("PORT not set")
 ```
 
 ---
@@ -1331,6 +1338,8 @@ r.map(str).map_err(str.upper)
 | `or_(other)` | `(Result[T, F]) -> Result[T, F]` | Return self if Ok, other if Err |
 | `ok()` | `() -> Option[T]` | Convert to Option, dropping error |
 | `err()` | `() -> Option[E]` | Convert error to Option |
+| `from_optional(v, e)` | `(T | None, E) -> Result[T, E]` | Ok(v) if v is not None, else Err(e) |
+
 
 ### Option[T]
 
@@ -1391,7 +1400,7 @@ Python 3.9 and later. Pattern matching (the `match` statement) requires Python 3
 
 **Can I use `Result` values in sets or as dictionary keys?**
 
-Yes. `Ok` and `Err` both implement `__hash__` and `__eq__`. Values inside them must themselves be hashable. `Some` and `Nothing` are also hashable.
+Yes. `Ok` and `Err` both implement `__hash__` and `__eq__`. However, like Python tuples, they are only hashable if their contained values are also hashable. For safety and predictability, it is strongly recommended to use **immutable values** inside `Result` and `Option` types.
 
 **How is this different from just checking `if value is None`?**
 

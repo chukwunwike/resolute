@@ -54,7 +54,7 @@ class Option(Generic[T]):
 
     def is_nothing(self) -> bool:
         """Return True if this is the Nothing variant."""
-        return isinstance(self, _NothingType)
+        return self is _Nothing
 
     def is_some_and(self, predicate: Callable[[T], bool]) -> bool:
         """
@@ -179,7 +179,7 @@ class Option(Generic[T]):
         """
         if isinstance(self, Some) and predicate(cast(T, self._value)):
             return self
-        return _Nothing
+        return Nothing
 
     # ------------------------------------------------------------------ #
     # Chaining
@@ -219,7 +219,7 @@ class Option(Generic[T]):
         """
         if isinstance(self, Some):
             return other
-        return _Nothing
+        return Nothing
 
     def or_(self, other: "Option[T]") -> "Option[T]":
         """
@@ -243,7 +243,7 @@ class Option(Generic[T]):
         """
         if isinstance(self, Some) and isinstance(other, Some):
             return Some((cast(T, self._value), cast(U, other._value)))
-        return _Nothing
+        return Nothing
 
     def flatten(self) -> "Option[T]":
         """
@@ -257,7 +257,7 @@ class Option(Generic[T]):
             return cast(Option[T], self._value)
         if isinstance(self, Some):
             return self
-        return _Nothing
+        return Nothing
 
     # ------------------------------------------------------------------ #
     # Converting to Result
@@ -374,7 +374,7 @@ class _NothingType(Option[T]):
         return "Nothing"
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, _NothingType)
+        return other is _Nothing
 
     def __hash__(self) -> int:
         return hash("Nothing")

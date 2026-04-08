@@ -1,5 +1,5 @@
 import pytest
-from resolute import Ok, Err, ContextError, Some, Nothing
+from resolute import Ok, Err, ContextError, Some, Nothing, Result
 
 def test_context_error_root_cause():
     base = ValueError("original")
@@ -23,6 +23,15 @@ def test_result_root_cause_simple_err():
 def test_result_root_cause_ok():
     res = Ok(42)
     assert res.root_cause() is Nothing
+
+def test_result_from_optional():
+    assert Result.from_optional(10, "err") == Ok(10)
+    assert Result.from_optional(None, "err") == Err("err")
+
+def test_option_identity_optimization():
+    # Verify that is_nothing() uses identity check
+    assert Nothing.is_nothing() is True
+    assert Some(1).is_nothing() is False
 
 def test_context_error_chain():
     base = ValueError("a")
