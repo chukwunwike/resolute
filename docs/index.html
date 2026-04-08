@@ -957,7 +957,10 @@ result = <span class="fn">read_config</span>()
     err = result.unwrap_err()
     <span class="fn">print</span>(<span class="fn">type</span>(err))       <span class="cm"># &lt;class 'resolute.ContextError'&gt;</span>
     <span class="fn">print</span>(err)             <span class="cm"># "Failed to load config"</span>
-    <span class="fn">print</span>(err.__cause__)   <span class="cm"># FileNotFoundError(...)</span></pre>
+    <span class="fn">print</span>(err.root_cause)  <span class="cm"># FileNotFoundError(...)</span></pre>
+
+  <p>If you need to access the original error downstream, use the <strong><code>.root_cause()</code></strong> helper on the Result (returns an <code>Option</code>) or the <strong><code>.root_cause</code></strong> property on the <code>ContextError</code>.</p>
+
 
   <h4>.with_context(f)</h4>
   <p>Like <code>.context()</code>, but computes the message lazily by calling <code>f()</code> ONLY if the result is an <code>Err</code>.</p>
@@ -1032,6 +1035,8 @@ description = (
   <div class="section-label">Decorator</div>
   <h2>@do / @do_option</h2>
   <p>Write sequential code without nesting by yielding <code>Result</code> or <code>Option</code> values. This provides syntactic sugar similar to Haskell's <code>do</code> or Rust's <code>?</code> operator.</p>
+  <p>Unlike some other libraries, resolute <strong>fully supports branching logic</strong> (if/else), loops, and early returns inside the generator, as it leverages standard Python generator semantics.</p>
+
 
   <pre><span class="kw">from</span> resolute <span class="kw">import</span> do, Ok, Err, Result
 <span class="kw">from</span> typing <span class="kw">import</span> Generator, Any
@@ -1365,6 +1370,8 @@ errors = <span class="fn">collect_all</span>([
       <tr><td><code>or_(other)</code></td><td><code>Result[T, F]</code></td><td class="method-desc">Return self if Ok, else other</td></tr>
       <tr><td><code>ok()</code></td><td><code>Option[T]</code></td><td class="method-desc">Convert to Option (Ok→Some, Err→Nothing)</td></tr>
       <tr><td><code>err()</code></td><td><code>Option[E]</code></td><td class="method-desc">Convert error to Option (Err→Some, Ok→Nothing)</td></tr>
+      <tr><td><code>root_cause()</code></td><td><code>Option[Any]</code></td><td class="method-desc">Get the original error cause recursively</td></tr>
+
     </tbody>
   </table>
 
