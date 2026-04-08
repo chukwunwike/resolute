@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.3.0
+
+### Added
+- **Pydantic v2 support**: `Option[T]` and `Result[T, E]` work as Pydantic model fields
+  with automatic validation and serialization
+- **FastAPI integration**: `resolute.integrations.fastapi.unwrap_or_http()` converts
+  `Result`/`Option` to `HTTPException` responses
+- **Benchmark suite**: `benchmarks/` directory with `pytest-benchmark` tests proving
+  ~300ns overhead per operation
+- `Result.from_optional(value, error)` — bridge nullable values to `Result`
+- `Option` identity optimizations (`is` checks for `Nothing` singleton)
+
+### Changed
+- Upgraded project status from Alpha to Beta
+- Build now excludes `integration_app/`, `benchmarks/`, `examples/` from wheel
+- FastAPI import is now guarded with a clear `ImportError` message
+
+### Fixed
+- Pydantic serializer signature compatibility with `pydantic-core`
+
+## 0.2.0
+
+### Added
+- `@do()` decorator — generator-based do-notation for `Result`
+- `@do_option()` decorator — do-notation for `Option`
+- `ContextError` — error context propagation with `root_cause` and `chain()`
+- `Result.context(msg)` and `Result.with_context(f)` — error wrapping
+- `Result.root_cause()` — traverse `ContextError` chains
+- Async helpers: `from_awaitable`, `map_async`, `and_then_async`
+- CI badge in README
+- Hashability documentation and immutability warnings
+
 ## 0.1.0 (initial release)
 
 ### Added

@@ -107,7 +107,7 @@ __all__ = [
     "do_option",
 ]
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __author__ = "resolute contributors"
 __license__ = "MIT"
 
