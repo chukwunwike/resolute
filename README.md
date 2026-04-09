@@ -91,7 +91,6 @@ The signature `Result[float, str]` is a contract: *"I will give you either a flo
   - [What belongs in Result](#what-belongs-in-result)
   - [What should stay as exceptions](#what-should-stay-as-exceptions)
 - [Type System Integration](#type-system-integration)
-- [Comparison with Alternatives](#comparison-with-alternatives)
 - [API Reference](#api-reference)
 - [FAQ](#faq)
 - [Contributing](#contributing)
@@ -1354,25 +1353,6 @@ r.map_err(lambda e: e.upper())  # inferred as Result[int, str]
 # and that the chain result is Result[str, str]
 r.map(str).map_err(str.upper)
 ```
-
----
-
-## Comparison with Alternatives
-
-| Feature | `resolute` | `returns` (dry-python) | `result` (rustedpy) |
-|---|---|---|---|
-| Zero dependencies | ✅ | ❌ (requires mypy plugin) | ✅ |
-| `Result` type | ✅ | ✅ | ✅ |
-| `Option` type | ✅ | ✅ (as `Maybe`) | ❌ |
-| `@safe` decorator | ✅ | ✅ | ❌ |
-| `@safe_async` | ✅ | ✅ | ❌ |
-| `collect` / `collect_all` | ✅ | ❌ | ❌ |
-| `partition` | ✅ | ❌ | ❌ |
-| Pattern matching support | ✅ | ✅ | ✅ |
-| Hashable (usable in sets/dicts) | ✅ | ❌ | ❌ |
-| Iterable | ✅ | ❌ | ❌ |
-| Enforcement on `@safe` catch types | ✅ | ❌ | ❌ |
-| Actively maintained | ✅ | ✅ | ❌ |
 
 ---
 
