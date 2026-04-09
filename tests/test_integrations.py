@@ -51,3 +51,21 @@ def test_fastapi_unwrap_option_nothing():
         unwrap_or_http(opt, status_code=404)
     assert exc.value.status_code == 404
     assert exc.value.detail == "Not found"
+
+# Logic from reproduce_pydantic.py
+class UserProfile(BaseModel):
+    status: Result[str, str]
+    bio: Option[str] = Nothing
+
+def test_pydantic_profile_success():
+    p = UserProfile(status=Ok("active"), bio=Some("hey"))
+    assert p.status == Ok("active")
+    assert p.bio == Some("hey")
+    assert isinstance(p.status, Result)
+    assert isinstance(p.bio, Option)
+
+def test_pydantic_profile_dict_init():
+    # Test with dict-based initialization which triggers Resolute validator
+    p = UserProfile(status={"ok": "active"}, bio=None)
+    assert p.status == Ok("active")
+    assert p.bio is Nothing

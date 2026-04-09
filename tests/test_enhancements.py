@@ -211,6 +211,30 @@ class TestContextPropagation:
         assert isinstance(err, ContextError)
         assert err.cause == "[Errno 2] No such file or directory: 'app.json'" or "app.json" in str(err.cause)
 
+    def test_configurable_verbosity(self, monkeypatch):
+        """Verify RESOLUTE_VERBOSE_ERROR environment variable control."""
+        def fail():
+            return 1 / 0
+        
+        try:
+            fail()
+        except Exception as e:
+            res = Err(e)
+            
+            # Case 1: Verbose (default or "1")
+            monkeypatch.setenv("RESOLUTE_VERBOSE_ERROR", "1")
+            verbose_str = str(res)
+            assert "Traceback" in verbose_str
+            assert "ZeroDivisionError" in verbose_str
+            
+            # Case 2: Concise ("0")
+            monkeypatch.setenv("RESOLUTE_VERBOSE_ERROR", "0")
+            concise_str = str(res)
+            # Should be concise, similar to repr but maybe slightly different
+            # Based on implementation, str(Err(e)) uses _format_error
+            assert "Traceback" not in concise_str
+            assert "ZeroDivisionError" in concise_str
+
 
 # ========================================================================
 # 4. DO-NOTATION

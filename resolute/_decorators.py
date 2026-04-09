@@ -87,8 +87,9 @@ def safe(
     """
     Decorator that wraps a function's exceptions into a Result type.
     """
-    if func is not None and not callable(func):
-        raise TypeError("The @safe decorator must be applied to a callable. Did you mean @safe(catch=Exception)?")
+    if func is not None:
+        if not callable(func) or (isinstance(func, type) and issubclass(func, BaseException)):
+            raise TypeError("The @safe decorator must be applied to a callable. Did you mean @safe(catch=SomeException)?")
 
     if allow_broad:
         _catch = _validate_catch(catch, warn_broad=False)

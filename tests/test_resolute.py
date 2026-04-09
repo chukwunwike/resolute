@@ -577,6 +577,28 @@ class TestSafeDecorator:
 
         assert not any(issubclass(w.category, RuntimeWarning) for w in caught)
 
+    def test_safe_with_bare_decorator(self):
+        """Verify @safe (without parens) works correctly."""
+        @safe
+        def negate(x: int) -> int:
+            return -x
+        assert negate(5) == Ok(-5)
+
+    def test_safe_with_empty_parens(self):
+        """Verify @safe() (with empty parens) works correctly."""
+        @safe()
+        def negate(x: int) -> int:
+            return -x
+        assert negate(5) == Ok(-5)
+
+    def test_safe_with_invalid_arg_raises(self):
+        """Verify @safe(Exception) (passing exception as first positional arg) fails fast."""
+        with pytest.raises(TypeError, match="must be applied to a callable"):
+            # This is invalid because 'catch' is a keyword-only or second arg
+            # and the first arg should be the function.
+            @safe(Exception)
+            def bad(): pass
+
 
 # ============================================================================
 # @safe_async decorator

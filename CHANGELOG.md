@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.3.1
+
+### Added
+- **Do-Notation Safety**: Runtime leak detector for `yield` without decorators
+- **Hybrid Tracebacks**: Full tracebacks in `str()` but concise markers in `repr()`
+- **Configurable Verbosity**: `RESOLUTE_VERBOSE_ERROR` environment variable control
+- **Decorator Validation**: Decoration-time enforcement for `@safe` and `@safe_async`
+- **Singleton Copying**: `Nothing` now supports `__copy__` and `__deepcopy__`
+
+### Changed
+- **Boolean Integrity**: Removed `__bool__` from `Result`/`Option` classes.
+  Implicit boolean evaluation now raises `RuntimeError`. (Breaking Change)
+- **Repository Structure**: Consolidated all tests and demos into `tests/` directory
+
+### Fixed
+- Hashability consistency in `Nothing` and `Err` variants
+- Pattern matching `__match_args__` for exact alignment with variants
+
 ## 0.3.0
 
 ### Added
