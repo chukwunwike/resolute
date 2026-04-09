@@ -1,7 +1,8 @@
 # resolute
-<!--
-[![Tests](https://github.com/chukwunwike/resolute/actions/workflows/tests.yml/badge.svg)](https://github.com/chukwunwike/resolute/actions/workflows/tests.yml)
+<!--   
 -->
+[![Tests](https://github.com/chukwunwike/resolute/actions/workflows/tests.yml/badge.svg)](https://github.com/chukwunwike/resolute/actions/workflows/tests.yml)
+
 
 
 > **Result and Option types for Python — zero dependencies, fully typed.**
