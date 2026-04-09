@@ -73,6 +73,46 @@ def _validate_catch(catch: Any) -> Tuple[Type[Exception], ...]:
     return catch_tuple
 
 
+def _validate_catch_no_broad_warning(catch: Any) -> Tuple[Type[Exception], ...]:
+    """
+    Same safety checks as _validate_catch, but without the broad-catch warning.
+    Used when allow_broad=True — we still block KeyboardInterrupt/SystemExit,
+    but don't warn about catching Exception.
+    """
+    if isinstance(catch, type):
+        catch_tuple: Tuple[Type[Exception], ...] = (catch,)
+    elif isinstance(catch, tuple):
+        catch_tuple = catch
+    else:
+        raise SafeDecoratorError(
+            "@safe `catch` must be an exception class or a tuple of exception "
+            f"classes, got {type(catch).__name__!r}"
+        )
+
+    for exc_type in catch_tuple:
+        if not isinstance(exc_type, type):
+            raise SafeDecoratorError(
+                f"@safe `catch` entries must be exception classes, "
+                f"got {exc_type!r}"
+            )
+
+        for forbidden in _FORBIDDEN_EXACT:
+            if issubclass(exc_type, forbidden):
+                raise SafeDecoratorError(
+                    f"@safe may not catch {exc_type.__name__} — it is a "
+                    "program-termination signal."
+                )
+
+        if not issubclass(exc_type, Exception):
+            raise SafeDecoratorError(
+                f"@safe may only catch Exception subclasses, "
+                f"not {exc_type.__name__}"
+            )
+
+    # No broad-catch warning — that's the whole point of allow_broad=True
+    return catch_tuple
+
+
 def safe(
     func: Callable[..., T] | None = None,
     *,
@@ -83,7 +123,9 @@ def safe(
     Decorator that wraps a function's exceptions into a Result type.
     """
     if allow_broad:
-        _catch = (catch,) if isinstance(catch, type) else tuple(catch)
+        # Still validate forbidden types (KeyboardInterrupt, SystemExit, etc.)
+        # but skip the broad-catch warning
+        _catch = _validate_catch_no_broad_warning(catch)
     else:
         _catch = _validate_catch(catch)
 
@@ -91,7 +133,7 @@ def safe(
         @functools.wraps(f)
         def wrapper(*args: Any, **kwargs: Any) -> Result[T, Exception]:
             try:
-                return Ok(cast(T, f(*args, **kwargs)))
+                return Ok(f(*args, **kwargs))
             except _catch as exc:
                 return Err(exc)
 
@@ -119,7 +161,7 @@ def safe_async(
     Async version of @safe.
     """
     if allow_broad:
-        _catch = (catch,) if isinstance(catch, type) else tuple(catch)
+        _catch = _validate_catch_no_broad_warning(catch)
     else:
         _catch = _validate_catch(catch)
 

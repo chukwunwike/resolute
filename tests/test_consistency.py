@@ -86,5 +86,5 @@ def test_do_option_mixed_yields():
         yield Err("x")
         return 1
     
-    # Returns Err("x") instead of None or Nothing.
-    assert mixed_opt_fail() == Err("x")
+    # Bug 2 fix: Err in Option context is converted to Nothing
+    assert mixed_opt_fail() == Nothing

@@ -317,7 +317,7 @@ class Result(Generic[T, E]):
     def zip(self, other: "Result[U, E]") -> "Result[tuple[T, U], E]":
         """
         Combine two Ok values into an Ok tuple.
-        Returns the first Err Encountered if either is Err.
+        Returns the first Err encountered if either is Err.
 
             Ok(1).zip(Ok("a"))   # Ok((1, "a"))
             Err("x").zip(Ok("a")) # Err("x")
@@ -348,8 +348,8 @@ class Result(Generic[T, E]):
         
         # self is Ok(Option)
         inner = self.unwrap()
-        if inner.is_some():
-            return Some(Ok(inner.unwrap()))
+        if isinstance(inner, Some):
+            return Some(Ok(inner.value))
         return _Nothing
 
     def flatten(self) -> "Result[T, E]":
@@ -366,7 +366,7 @@ class Result(Generic[T, E]):
         """
         if isinstance(self, Ok) and isinstance(self._value, Result):
             return self._value
-        return self  # type: ignore[return-value]
+        return self
 
     # ------------------------------------------------------------------ #
     # Converting to Option

@@ -222,7 +222,7 @@ def do_option() -> Callable[
                         return _Nothing
 
                     if isinstance(yielded, Err):
-                        return yielded  # type: ignore[return-value]
+                        return _Nothing  # Err in Option context → Nothing
                     
                     # Special case: if a Result is yielded in do_option, transpose it?
                     # No, let's keep it simple: just unwrap if it has .unwrap()
@@ -241,7 +241,13 @@ def do_option() -> Callable[
 def _finalize_option(return_value: Any) -> Option[Any]:
     """
     Wrap a generator's return value in Some — unless it is already an Option.
+
+    Handles explicit Result returns: Err → Nothing, Ok → Some(value).
     """
     if isinstance(return_value, (_NothingType, Some)):
         return return_value
+    if isinstance(return_value, Err):
+        return _Nothing
+    if isinstance(return_value, Ok):
+        return Some(return_value.unwrap())
     return Some(return_value)

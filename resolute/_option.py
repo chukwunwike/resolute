@@ -83,6 +83,11 @@ class Option(Generic[T]):
         """
         return Nothing if value is None else Some(value)
 
+    @classmethod
+    def from_optional(cls, value: T | None) -> "Option[T]":
+        """Alias for of(). Wrap a nullable value."""
+        return cls.of(value)
+
     # ------------------------------------------------------------------ #
     # Extracting values
     # ------------------------------------------------------------------ #
@@ -277,13 +282,13 @@ class Option(Generic[T]):
             Some(Err("x")).transpose() # Err("x")
             Nothing.transpose()        # Ok(Nothing)
         """
-        from ._result import Ok
+        from ._result import Ok, Err, Result
         if isinstance(self, Some):
             inner = self.unwrap()
-            if hasattr(inner, "is_ok"): # check if it's a Result
-                if inner.is_ok():
+            if isinstance(inner, Result):
+                if isinstance(inner, Ok):
                     return Ok(Some(inner.unwrap()))
-                return inner
+                return inner  # Err passes through
             # Fallback for non-Result Some values (though transpose is intended for Result)
             return Ok(self)
         return Ok(Nothing)

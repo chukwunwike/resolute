@@ -110,9 +110,10 @@ def flatten_result(result: Result[Result[T, E], E]) -> Result[T, E]:
         flatten_result(Ok(Err("x"))) # Err("x")
         flatten_result(Err("outer")) # Err("outer")
 
-    Equivalent to result.and_then(lambda x: x).
+    Calls the .flatten() method on the result.
     """
-    return result.and_then(lambda x: x)
+    from typing import cast
+    return cast(Result[T, E], result.flatten())
 
 
 def flatten_option(opt: Option[Option[T]]) -> Option[T]:
@@ -123,9 +124,10 @@ def flatten_option(opt: Option[Option[T]]) -> Option[T]:
         flatten_option(Some(Nothing))  # Nothing
         flatten_option(Nothing)        # Nothing
 
-    Equivalent to opt.and_then(lambda x: x).
+    Calls the .flatten() method on the option.
     """
-    return opt.and_then(lambda x: x)
+    from typing import cast
+    return cast(Option[T], opt.flatten())
 
 
 # --------------------------------------------------------------------------- #
