@@ -3,7 +3,7 @@ Resolute Real-World Demo: Weather Processing Pipeline
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This example simulates a production data pipeline that:
 1. Fetches raw JSON from a "Weather API".
-2. Parases the data into a safe object.
+2. Parses the data into a safe object.
 3. Calculates an average temperature.
 4. Handles missing sensors and network timeouts without any try/except blocks in core logic.
 """
