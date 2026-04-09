@@ -10,7 +10,7 @@ readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.9"
 authors = [
-    { name = "Chukwunwike", email = "chuks@example.com" },
+    { name = "Chukwunwike Obodo", email = "chukwunwike.obodo@hotmail.com" },
 ]
 dependencies = []
 
@@ -48,6 +48,9 @@ dev = [
     "pydantic",
     "mkdocs",
     "mkdocstrings[python]",
+]
+fastapi = [
+    "fastapi",
 ]
 
 [tool.pytest.ini_options]

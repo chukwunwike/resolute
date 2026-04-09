@@ -13,7 +13,7 @@ try:
 except ImportError:
     raise ImportError(
         "FastAPI is required for this integration. "
-        "Install it with: pip install resolute[dev]  or  pip install fastapi"
+        "Install it with: pip install resolute[fastapi]  or  pip install fastapi"
     )
 
 from .._result import Result

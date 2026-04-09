@@ -73,81 +73,71 @@ def _validate_catch(catch: Any) -> Tuple[Type[Exception], ...]:
     return catch_tuple
 
 
-class safe:
+def safe(
+    func: Callable[..., T] | None = None,
+    *,
+    catch: ExcTypes = Exception,
+    allow_broad: bool = False,
+) -> Any:
     """
     Decorator that wraps a function's exceptions into a Result type.
     """
+    if allow_broad:
+        _catch = (catch,) if isinstance(catch, type) else tuple(catch)
+    else:
+        _catch = _validate_catch(catch)
 
-    _catch: Tuple[Type[Exception], ...]
-
-    def __init__(
-        self,
-        func: Callable[..., T] | None = None,
-        *,
-        catch: ExcTypes = Exception,
-        allow_broad: bool = False,
-    ) -> None:
-        self._func = func
-        if allow_broad:
-            if isinstance(catch, type):
-                self._catch = (catch,)
-            else:
-                self._catch = tuple(catch)
-        else:
-            self._catch = _validate_catch(catch)
-
-    def __call__(self, func: Callable[..., T]) -> Callable[..., Result[T, Exception]]:
-        target_func = self._func or func
-        
-        @functools.wraps(target_func)
+    def decorator(f: Callable[..., T]) -> Callable[..., Result[T, Exception]]:
+        @functools.wraps(f)
         def wrapper(*args: Any, **kwargs: Any) -> Result[T, Exception]:
             try:
-                return Ok(cast(T, target_func(*args, **kwargs)))
-            except self._catch as exc:
+                return Ok(cast(T, f(*args, **kwargs)))
+            except _catch as exc:
                 return Err(exc)
 
         # Update annotations
-        original_annotations = getattr(target_func, "__annotations__", {}).copy()
-        original_return = original_annotations.get("return")
-        if original_return is not None:
+        original_annotations = getattr(f, "__annotations__", {}).copy()
+        if original_annotations.get("return") is not None:
              # Dynamically patching Result with a type variable is hard for Mypy.
              # We use Any here to satisfy strict mode while keeping the runtime logic.
             original_annotations["return"] = Any 
         wrapper.__annotations__ = original_annotations
         return wrapper
 
+    if func is not None:
+        return decorator(func)
+    return decorator
 
-class safe_async:
+
+def safe_async(
+    func: Callable[..., Any] | None = None,
+    *,
+    catch: ExcTypes = Exception,
+    allow_broad: bool = False,
+) -> Any:
     """
     Async version of @safe.
     """
+    if allow_broad:
+        _catch = (catch,) if isinstance(catch, type) else tuple(catch)
+    else:
+        _catch = _validate_catch(catch)
 
-    _catch: Tuple[Type[Exception], ...]
-
-    def __init__(
-        self,
-        func: Callable[..., Any] | None = None,
-        *,
-        catch: ExcTypes = Exception,
-        allow_broad: bool = False,
-    ) -> None:
-        self._func = func
-        if allow_broad:
-            if isinstance(catch, type):
-                self._catch = (catch,)
-            else:
-                self._catch = tuple(catch)
-        else:
-            self._catch = _validate_catch(catch)
-
-    def __call__(self, func: Callable[..., Any]) -> Callable[..., Any]:
-        target_func = self._func or func
-
-        @functools.wraps(target_func)
+    def decorator(f: Callable[..., Any]) -> Callable[..., Any]:
+        @functools.wraps(f)
         async def wrapper(*args: Any, **kwargs: Any) -> Result[Any, Exception]:
             try:
-                return Ok(await target_func(*args, **kwargs))
-            except self._catch as exc:
+                return Ok(await f(*args, **kwargs))
+            except _catch as exc:
                 return Err(exc)
 
+        # Update annotations
+        original_annotations = getattr(f, "__annotations__", {}).copy()
+        if original_annotations.get("return") is not None:
+            original_annotations["return"] = Any 
+        wrapper.__annotations__ = original_annotations
         return wrapper
+
+    if func is not None:
+        return decorator(func)
+    return decorator

@@ -303,6 +303,22 @@ class Result(Generic[T, E]):
             return other
         return cast(Result[T, F], self)
 
+    def flatten(self) -> "Result[T, E]":
+        """
+        Flatten a nested Result[Result[T, E], E] into Result[T, E].
+
+        If self is Ok(Ok(value)), returns Ok(value).
+        If self is Ok(Err(e)), returns Err(e).
+        If self is Err(e), returns Err(e).
+
+            Ok(Ok(42)).flatten()        # Ok(42)
+            Ok(Err("bad")).flatten()    # Err("bad")
+            Err("outer").flatten()     # Err("outer")
+        """
+        if isinstance(self, Ok) and isinstance(self._value, Result):
+            return self._value
+        return self  # type: ignore[return-value]
+
     # ------------------------------------------------------------------ #
     # Converting to Option
     # ------------------------------------------------------------------ #
@@ -439,15 +455,8 @@ class Result(Generic[T, E]):
             # Fallback: try to validate as Ok
             return Ok(value)
 
-        return core_schema.no_info_after_validator_function(
+        return core_schema.no_info_plain_validator_function(
             validate,
-            core_schema.union_schema([
-                core_schema.dict_schema(
-                    keys_schema=core_schema.str_schema(),
-                    values_schema=core_schema.any_schema(),
-                ),
-                handler(ok_type),
-            ]),
             serialization=core_schema.plain_serializer_function_ser_schema(
                 lambda v: {"ok": v.unwrap()} if v.is_ok() else {"err": v.unwrap_err()}
             ),

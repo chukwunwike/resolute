@@ -9,6 +9,8 @@ It is an explicit, type-safe alternative to returning None.
 
 from __future__ import annotations
 
+import warnings
+
 from typing import (
     Any,
     Callable,
@@ -336,9 +338,8 @@ class Option(Generic[T]):
                 return value
             return Some(value)
 
-        return core_schema.no_info_after_validator_function(
+        return core_schema.no_info_plain_validator_function(
             validate,
-            core_schema.nullable_schema(handler(inner_type)),
             serialization=core_schema.plain_serializer_function_ser_schema(
                 lambda v: v.unwrap() if v.is_some() else None
             ),
@@ -362,6 +363,13 @@ class Some(Option[T]):
     __match_args__ = ("_value",)  # enables: case Some(value):
 
     def __init__(self, value: T) -> None:
+        if value is None:
+            warnings.warn(
+                "Some(None) is usually a bug. If you are wrapping a potentially "
+                "missing value, use Option.of(value) instead.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
         self._value = value
 
     @property

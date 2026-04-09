@@ -9,6 +9,7 @@ and async/await code, eliminating awkward nested awaits.
 
 from __future__ import annotations
 
+import warnings
 from typing import (
     Any,
     Awaitable,
@@ -43,6 +44,13 @@ async def from_awaitable(
     Returns:
         Ok(value) on success, Err(exception) on caught failure.
     """
+    if catch is Exception:
+        warnings.warn(
+            "from_awaitable(catch=Exception) catches ALL exceptions. "
+            "Prefer specifying the exact exception types you expect.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
     try:
         value = await aw
         return Ok(value)

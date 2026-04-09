@@ -45,6 +45,7 @@ For Option types, use ``@do_option()``:
 
 from __future__ import annotations
 
+import functools
 from types import GeneratorType
 from typing import (
     Any,
@@ -110,6 +111,7 @@ def do() -> Callable[
         gen_func: Callable[..., Generator[Result[Any, E], Any, T]],
     ) -> Callable[..., Result[T, E]]:
 
+        @functools.wraps(gen_func)
         def wrapper(*args: Any, **kwargs: Any) -> Result[T, E]:
             gen = gen_func(*args, **kwargs)
             # If the function returned early (no yield), it's not a generator
@@ -128,10 +130,6 @@ def do() -> Callable[
             except StopIteration as stop:
                 return _finalize_result(stop.value)
 
-        # Preserve function metadata
-        wrapper.__name__ = gen_func.__name__
-        wrapper.__doc__ = gen_func.__doc__
-        wrapper.__module__ = gen_func.__module__
         return wrapper
 
     return decorator
@@ -193,6 +191,7 @@ def do_option() -> Callable[
         gen_func: Callable[..., Generator[Option[Any], Any, T]],
     ) -> Callable[..., Option[T]]:
 
+        @functools.wraps(gen_func)
         def wrapper(*args: Any, **kwargs: Any) -> Option[T]:
             gen = gen_func(*args, **kwargs)
             # If the function returned early (no yield), it's not a generator
@@ -211,10 +210,6 @@ def do_option() -> Callable[
             except StopIteration as stop:
                 return _finalize_option(stop.value)
 
-        # Preserve function metadata
-        wrapper.__name__ = gen_func.__name__
-        wrapper.__doc__ = gen_func.__doc__
-        wrapper.__module__ = gen_func.__module__
         return wrapper
 
     return decorator
