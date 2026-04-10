@@ -1,5 +1,5 @@
 """
-resolute._async_helpers
+explicit_result._async_helpers
 ~~~~~~~~~~~~~~~~~~~~~~~~
 Async ergonomics for Result and Option.
 

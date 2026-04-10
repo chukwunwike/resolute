@@ -1,6 +1,6 @@
 import sys
 import pytest
-from resolute import Ok, Err
+from explicit_result import Ok, Err
 
 @pytest.mark.skipif(sys.version_info < (3, 10), reason="match requires Python 3.10+")
 class TestResultPatternMatching:

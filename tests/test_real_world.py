@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Optional
 
 import pytest
-from resolute import (
+from explicit_result import (
     Ok, Err, Result, Some, Nothing, Option,
     safe, safe_async, collect, collect_all, partition,
 )

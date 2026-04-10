@@ -1,5 +1,5 @@
 import pytest
-from resolute import safe, Ok, Err
+from explicit_result import safe, Ok, Err
 
 def throw_error():
     raise ValueError("oops")

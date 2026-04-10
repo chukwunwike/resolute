@@ -23,7 +23,7 @@
 ### Added
 - **Pydantic v2 support**: `Option[T]` and `Result[T, E]` work as Pydantic model fields
   with automatic validation and serialization
-- **FastAPI integration**: `resolute.integrations.fastapi.unwrap_or_http()` converts
+- **FastAPI integration**: `explicit_result.integrations.fastapi.unwrap_or_http()` converts
   `Result`/`Option` to `HTTPException` responses
 - **Benchmark suite**: `benchmarks/` directory with `pytest-benchmark` tests proving
   ~300ns overhead per operation

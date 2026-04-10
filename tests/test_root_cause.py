@@ -1,5 +1,5 @@
 import pytest
-from resolute import Ok, Err, ContextError, Some, Nothing, Result
+from explicit_result import Ok, Err, ContextError, Some, Nothing, Result
 
 def test_context_error_root_cause():
     base = ValueError("original")

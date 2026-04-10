@@ -2,7 +2,7 @@
 Test metadata preservation for @do and @do_option decorators.
 Converted from root test_metadata.py.
 """
-from resolute import do, Ok, Result
+from explicit_result import do, Ok, Result
 
 @do()
 def pipeline() -> Result[int, str]:

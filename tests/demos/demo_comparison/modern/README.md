@@ -1,6 +1,6 @@
 # Modern Codebase: Resolute Benefits
 
-This codebase demonstrates how `resolute` transforms fragile, nested logic into robust, readable pipelines.
+This codebase demonstrates how `explicit_result` transforms fragile, nested logic into robust, readable pipelines.
 
 ## Key Improvements
 

@@ -1,4 +1,4 @@
-from resolute import Result, Ok, Err, safe, do
+from explicit_result import Result, Ok, Err, safe, do
 import sys
 import os
 

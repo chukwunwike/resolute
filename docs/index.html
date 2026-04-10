@@ -689,7 +689,7 @@
 
     <!-- ── SIDEBAR ── -->
     <nav id="sidebar">
-      <div class="nav-brand">resolute</div>
+      <div class="nav-brand">explicit_result</div>
       <div class="nav-tagline">Result &amp; Option for Python</div>
 
       <div class="nav-section">Getting Started</div>
@@ -740,7 +740,7 @@
         <div class="hero-eyebrow">Python · Zero Dependencies · Fully Typed</div>
         <h1>Make your<br /><em>errors visible.</em></h1>
         <p class="hero-subtitle">
-          <code style="background:rgba(255,255,255,0.1);color:#e8e3d8">resolute</code> brings
+          <code style="background:rgba(255,255,255,0.1);color:#e8e3d8">explicit_result</code> brings
           <strong style="color:#fff">Result</strong> and <strong style="color:#fff">Option</strong> types
           to Python. Your function signatures become honest contracts.
           Your error paths become impossible to ignore.
@@ -762,7 +762,7 @@
       <section id="installation">
         <div class="section-label">Setup</div>
         <h2>Installation</h2>
-        <p><code>resolute</code> has <strong>zero runtime dependencies</strong>. Install it and start using it
+        <p><code>explicit_result</code> has <strong>zero runtime dependencies</strong>. Install it and start using it
           immediately.</p>
         <pre><span class="cm"># From PyPI</span>
 pip install explicit-result
@@ -779,7 +779,7 @@ pip install explicit-result[dev]</pre>
         <div class="section-label">Introduction</div>
         <h2>Quick Start</h2>
         <p>Python functions can raise exceptions or return <code>None</code> — and neither appears in the type
-          signature. <code>resolute</code> gives you types that tell the truth.</p>
+          signature. <code>explicit_result</code> gives you types that tell the truth.</p>
 
         <div class="two-col">
           <div>
@@ -794,7 +794,7 @@ pip install explicit-result[dev]</pre>
           </div>
           <div>
             <h3 style="margin-top:0">After</h3>
-            <pre><span class="kw">from</span> resolute <span class="kw">import</span> Ok, Err, Result
+            <pre><span class="kw">from</span> explicit_result <span class="kw">import</span> Ok, Err, Result
 
 <span class="cm"># The contract is explicit.</span>
 <span class="kw">def</span> <span class="fn">get_user</span>(uid: <span class="type">int</span>) -> <span class="type">Result</span>[<span class="type">User</span>, <span class="type">str</span>]:
@@ -806,7 +806,7 @@ pip install explicit-result[dev]</pre>
         </div>
 
         <h3>Core types at a glance</h3>
-        <pre><span class="kw">from</span> resolute <span class="kw">import</span> Ok, Err, Result, Some, Nothing, Option, safe
+        <pre><span class="kw">from</span> explicit_result <span class="kw">import</span> Ok, Err, Result, Some, Nothing, Option, safe
 
 <span class="cm"># Result — a value OR an error</span>
 <span class="kw">def</span> <span class="fn">parse_port</span>(raw: <span class="type">str</span>) -> <span class="type">Result</span>[<span class="type">int</span>, <span class="type">str</span>]:
@@ -870,7 +870,7 @@ parse_float(<span class="str">"abc"</span>)    <span class="cm"># Err(ValueError
           </div>
         </div>
 
-        <pre><span class="kw">from</span> resolute <span class="kw">import</span> Ok, Err, Result
+        <pre><span class="kw">from</span> explicit_result <span class="kw">import</span> Ok, Err, Result
 
 <span class="cm"># Ok — success</span>
 r: <span class="type">Result</span>[<span class="type">int</span>, <span class="type">str</span>] = <span class="ok">Ok</span>(<span class="num">42</span>)
@@ -1115,7 +1115,7 @@ Nothing.ok_or_else(<span class="kw">lambda</span>: <span class="fn">build_error<
       <section class="alt" id="pattern-matching">
         <div class="section-label">Python 3.10+</div>
         <h2>Pattern Matching</h2>
-        <p><code>resolute</code> supports Python's structural pattern matching with no extra setup. The
+        <p><code>explicit_result</code> supports Python's structural pattern matching with no extra setup. The
           <code>__match_args__</code> attribute is set on all variants.
         </p>
 
@@ -1150,7 +1150,7 @@ Nothing.ok_or_else(<span class="kw">lambda</span>: <span class="fn">build_error<
 
         <h4>.context(message)</h4>
         <p>If Err, wraps the error in a <code>ContextError</code> with the given message. If Ok, passes through.</p>
-        <pre><span class="kw">from</span> resolute <span class="kw">import</span> ContextError
+        <pre><span class="kw">from</span> explicit_result <span class="kw">import</span> ContextError
 
 <span class="kw">def</span> <span class="fn">read_config</span>() -> <span class="type">Result</span>[<span class="type">str</span>, <span class="type">Exception</span>]:
     <span class="kw">return</span> <span class="fn">read_file</span>(<span class="str">"config.json"</span>).context(<span class="str">"Failed to load config"</span>)
@@ -1158,7 +1158,7 @@ Nothing.ok_or_else(<span class="kw">lambda</span>: <span class="fn">build_error<
 result = <span class="fn">read_config</span>()
 <span class="kw">if</span> result.is_err():
     err = result.unwrap_err()
-    <span class="fn">print</span>(<span class="fn">type</span>(err))       <span class="cm"># &lt;class 'resolute.ContextError'&gt;</span>
+    <span class="fn">print</span>(<span class="fn">type</span>(err))       <span class="cm"># &lt;class 'explicit_result.ContextError'&gt;</span>
     <span class="fn">print</span>(err)             <span class="cm"># "Failed to load config"</span>
     <span class="fn">print</span>(err.root_cause)  <span class="cm"># FileNotFoundError(...)</span></pre>
 
@@ -1191,9 +1191,9 @@ result = <span class="fn">read_config</span>()
         <div class="section-label">Decorator</div>
         <h2>@safe</h2>
         <p>Wraps an exception-throwing function into a <code>Result</code>-returning one. This is the bridge between
-          existing Python code (which uses exceptions) and <code>resolute</code>-style code.</p>
+          existing Python code (which uses exceptions) and <code>explicit_result</code>-style code.</p>
 
-        <pre><span class="kw">from</span> resolute <span class="kw">import</span> safe
+        <pre><span class="kw">from</span> explicit_result <span class="kw">import</span> safe
 
 <span class="dec">@safe</span>(catch=<span class="type">ValueError</span>)
 <span class="kw">def</span> <span class="fn">parse_int</span>(s: <span class="type">str</span>) -> <span class="type">int</span>:
@@ -1231,7 +1231,7 @@ result = <span class="fn">read_config</span>()
         <p>The async equivalent of <code>@safe</code>. Wraps an <code>async def</code> function.</p>
 
         <pre><span class="kw">import</span> asyncio
-<span class="kw">from</span> resolute <span class="kw">import</span> safe_async
+<span class="kw">from</span> explicit_result <span class="kw">import</span> safe_async
 
 <span class="dec">@safe_async</span>(catch=(<span class="type">aiohttp.ClientError</span>, <span class="type">asyncio.TimeoutError</span>))
 <span class="kw">async def</span> <span class="fn">fetch_json</span>(url: <span class="type">str</span>) -> <span class="type">dict</span>:
@@ -1256,14 +1256,14 @@ description = (
         <h2>@do / @do_option</h2>
         <p>Write sequential code without nesting by yielding <code>Result</code> or <code>Option</code> values. This
           provides syntactic sugar similar to Haskell's <code>do</code> or Rust's <code>?</code> operator.</p>
-        <p>Unlike some other libraries, resolute <strong>fully supports branching logic</strong> (if/else), loops, and
+        <p>Unlike some other libraries, explicit_result <strong>fully supports branching logic</strong> (if/else), loops, and
           early returns inside the generator, as it leverages standard Python generator semantics.</p>
         <p><strong>Safety Guard (v0.3.1)</strong>: Using <code>yield</code> without the decorator issues a
           <code>RuntimeWarning</code> to prevent leaked generators.
         </p>
 
 
-        <pre><span class="kw">from</span> resolute <span class="kw">import</span> do, Ok, Err, Result
+        <pre><span class="kw">from</span> explicit_result <span class="kw">import</span> do, Ok, Err, Result
 <span class="kw">from</span> typing <span class="kw">import</span> Generator, Any
 
 <span class="dec">@do</span>()
@@ -1285,7 +1285,7 @@ result = <span class="fn">process_user</span>(<span class="num">1</span>)
 
         <h4>@do_option</h4>
         <p>The equivalent for <code>Option</code> chains. Yielding <code>Nothing</code> short-circuits the function.</p>
-        <pre><span class="kw">from</span> resolute <span class="kw">import</span> do_option, Some, Nothing, Option
+        <pre><span class="kw">from</span> explicit_result <span class="kw">import</span> do_option, Some, Nothing, Option
 
 <span class="dec">@do_option</span>()
 <span class="kw">def</span> <span class="fn">get_score</span>(user_id: <span class="type">int</span>) -> <span class="type">Generator</span>[<span class="type">Option</span>[<span class="type">Any</span>], <span class="type">Any</span>, <span class="type">Option</span>[<span class="type">int</span>]]:
@@ -1302,7 +1302,7 @@ result = <span class="fn">process_user</span>(<span class="num">1</span>)
 
         <h4>from_awaitable(coro) / map_async / and_then_async</h4>
         <pre><span class="kw">import</span> asyncio
-<span class="kw">from</span> resolute <span class="kw">import</span> from_awaitable, map_async, and_then_async
+<span class="kw">from</span> explicit_result <span class="kw">import</span> from_awaitable, map_async, and_then_async
 
 <span class="kw">async def</span> <span class="fn">fetch_data</span>() -> <span class="type">str</span>: ...
 
@@ -1326,7 +1326,7 @@ result = <span class="fn">process_user</span>(<span class="num">1</span>)
           <code>Ok([...])</code> if <em>all</em> results are Ok. Returns the <strong>first</strong> Err and stops
           immediately (fail-fast).
         </p>
-        <pre><span class="kw">from</span> resolute <span class="kw">import</span> collect
+        <pre><span class="kw">from</span> explicit_result <span class="kw">import</span> collect
 
 <span class="fn">collect</span>([<span class="ok">Ok</span>(<span class="num">1</span>), <span class="ok">Ok</span>(<span class="num">2</span>), <span class="ok">Ok</span>(<span class="num">3</span>)])           <span class="cm"># Ok([1, 2, 3])</span>
 <span class="fn">collect</span>([<span class="ok">Ok</span>(<span class="num">1</span>), <span class="err">Err</span>(<span class="str">"bad"</span>), <span class="ok">Ok</span>(<span class="num">3</span>)])      <span class="cm"># Err("bad")  — stops here</span>
@@ -1339,7 +1339,7 @@ result = <span class="fn">process_user</span>(<span class="num">1</span>)
         <h2>collect_all</h2>
         <p>Like <code>collect</code>, but gathers <strong>all</strong> errors instead of stopping at the first.
           Essential for form validation where you want every field error in one pass.</p>
-        <pre><span class="kw">from</span> resolute <span class="kw">import</span> collect_all
+        <pre><span class="kw">from</span> explicit_result <span class="kw">import</span> collect_all
 
 <span class="fn">collect_all</span>([<span class="ok">Ok</span>(<span class="num">1</span>), <span class="err">Err</span>(<span class="str">"a"</span>), <span class="ok">Ok</span>(<span class="num">3</span>), <span class="err">Err</span>(<span class="str">"b"</span>)])
 <span class="cm"># Err(["a", "b"])  — all errors collected</span>
@@ -1367,20 +1367,20 @@ results = [
         <h2>partition / sequence / transpose</h2>
 
         <h4>partition — split into two lists</h4>
-        <pre><span class="kw">from</span> resolute <span class="kw">import</span> partition
+        <pre><span class="kw">from</span> explicit_result <span class="kw">import</span> partition
 
 oks, errs = <span class="fn">partition</span>([<span class="ok">Ok</span>(<span class="num">1</span>), <span class="err">Err</span>(<span class="str">"a"</span>), <span class="ok">Ok</span>(<span class="num">2</span>), <span class="err">Err</span>(<span class="str">"b"</span>)])
 <span class="cm"># oks  = [1, 2]</span>
 <span class="cm"># errs = ["a", "b"]</span></pre>
 
         <h4>sequence — Option equivalent of collect</h4>
-        <pre><span class="kw">from</span> resolute <span class="kw">import</span> sequence
+        <pre><span class="kw">from</span> explicit_result <span class="kw">import</span> sequence
 
 <span class="fn">sequence</span>([<span class="some">Some</span>(<span class="num">1</span>), <span class="some">Some</span>(<span class="num">2</span>), <span class="some">Some</span>(<span class="num">3</span>)])   <span class="cm"># Some([1, 2, 3])</span>
 <span class="fn">sequence</span>([<span class="some">Some</span>(<span class="num">1</span>), Nothing, <span class="some">Some</span>(<span class="num">3</span>)])    <span class="cm"># Nothing</span></pre>
 
         <h4>transpose / transpose_result — flip the types</h4>
-        <pre><span class="kw">from</span> resolute <span class="kw">import</span> transpose, transpose_result
+        <pre><span class="kw">from</span> explicit_result <span class="kw">import</span> transpose, transpose_result
 
 <span class="cm"># Option[Result] → Result[Option]</span>
 <span class="fn">transpose</span>(<span class="some">Some</span>(<span class="ok">Ok</span>(<span class="num">42</span>)))      <span class="cm"># Ok(Some(42))</span>
@@ -1430,7 +1430,7 @@ oks, errs = <span class="fn">partition</span>([<span class="ok">Ok</span>(<span 
       <section id="what-belongs">
         <div class="section-label">Guide</div>
         <h2>What Belongs in Result</h2>
-        <p>The most important question when using <code>resolute</code>: <em>"Is this failure a valid state my program
+        <p>The most important question when using <code>explicit_result</code>: <em>"Is this failure a valid state my program
             should respond to — or is it evidence that my code is wrong?"</em></p>
 
         <table class="error-table">
@@ -1526,7 +1526,7 @@ email = (
 )</pre>
 
         <h3>Collect all form errors</h3>
-        <pre><span class="kw">from</span> resolute <span class="kw">import</span> collect_all
+        <pre><span class="kw">from</span> explicit_result <span class="kw">import</span> collect_all
 
 errors = <span class="fn">collect_all</span>([
     <span class="fn">validate_username</span>(form.username),
@@ -1549,7 +1549,7 @@ errors = <span class="fn">collect_all</span>([
           <div>
             <h3>FastAPI</h3>
             <p>Cleanly convert <code>Result</code> or <code>Option</code> to <code>HTTPException</code>.</p>
-            <pre><span class="kw">from</span> resolute.integrations.fastapi <span class="kw">import</span> unwrap_or_http
+            <pre><span class="kw">from</span> explicit_result.integrations.fastapi <span class="kw">import</span> unwrap_or_http
 
 <span class="dec">@app.get</span>(<span class="str">"/items/{id}"</span>)
 <span class="kw">def</span> <span class="fn">get_item</span>(id: <span class="type">int</span>):
@@ -1923,7 +1923,7 @@ errors = <span class="fn">collect_all</span>([
       </section>
 
       <footer>
-        <div>resolute &mdash; MIT License</div>
+        <div>explicit_result &mdash; MIT License</div>
         <div>
           <a href="#overview">Back to top</a>
         </div>

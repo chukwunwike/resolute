@@ -1,5 +1,5 @@
 """
-resolute._result
+explicit_result._result
 ~~~~~~~~~~~~~~~~~
 Core Result[T, E] type with Ok and Err variants.
 

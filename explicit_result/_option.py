@@ -1,5 +1,5 @@
 """
-resolute._option
+explicit_result._option
 ~~~~~~~~~~~~~~~~~
 Core Option[T] type with Some and Nothing variants.
 

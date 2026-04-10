@@ -1,7 +1,7 @@
 """
-tests/test_resolute.py
+tests/test_explicit_result.py
 ~~~~~~~~~~~~~~~~~~~~~~~
-Full test suite for resolute.
+Full test suite for explicit_result.
 
 Covers:
   - Result (Ok / Err): all methods
@@ -20,7 +20,7 @@ import warnings
 
 import pytest
 
-from resolute import (
+from explicit_result import (
     Err,
     Ok,
     Nothing,
@@ -465,7 +465,7 @@ class TestOptionDunder:
         assert len(s) == 2
 
     def test_nothing_singleton(self):
-        from resolute._option import _NothingType
+        from explicit_result._option import _NothingType
         assert _NothingType() is Nothing
 
     def test_option_bool_raises(self):

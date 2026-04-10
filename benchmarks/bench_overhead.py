@@ -1,5 +1,5 @@
 import pytest
-from resolute import Ok, Err
+from explicit_result import Ok, Err
 
 def return_val():
     return 42

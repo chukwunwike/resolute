@@ -1,6 +1,6 @@
 """
 Database layer — raises real exceptions.
-No resolute imports here. This is pure, legacy Python code.
+No explicit_result imports here. This is pure, legacy Python code.
 """
 
 import json

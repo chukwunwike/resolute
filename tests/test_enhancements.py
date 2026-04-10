@@ -8,7 +8,7 @@ Tests for all 4 enhancement areas:
 
 import asyncio
 import pytest
-from resolute import (
+from explicit_result import (
     Ok, Err, Result,
     Some, Nothing,
     ContextError,
@@ -28,7 +28,7 @@ class TestPerformanceBenchmarks:
         """Time Ok(42) vs bare return 42."""
         def raw():
             return 42
-        # Benchmark the resolute version
+        # Benchmark the explicit_result version
         result = benchmark(lambda: Ok(42))
         assert result.is_ok()
 

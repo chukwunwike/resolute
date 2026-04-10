@@ -1,9 +1,9 @@
 import re
 from pathlib import Path
-import resolute
+import explicit_result
 
 def test_version_sync():
-    """Ensure pyproject.toml version matches resolute.__version__."""
+    """Ensure pyproject.toml version matches explicit_result.__version__."""
     # Find project root (where pyproject.toml lives)
     # Assuming tests/ is a subfolder of the root
     project_root = Path(__file__).parent.parent
@@ -21,8 +21,8 @@ def test_version_sync():
     
     pyproject_version = match.group(1)
     
-    assert pyproject_version == resolute.__version__, (
+    assert pyproject_version == explicit_result.__version__, (
         f"Version mismatch! "
         f"pyproject.toml says '{pyproject_version}', "
-        f"but resolute.__init__ says '{resolute.__version__}'"
+        f"but explicit_result.__init__ says '{explicit_result.__version__}'"
     )

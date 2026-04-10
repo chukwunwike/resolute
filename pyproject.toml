@@ -28,10 +28,10 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/chukwunwike/resolute"
-Repository = "https://github.com/chukwunwike/resolute"
-Documentation = "https://github.com/chukwunwike/resolute#readme"
-Issues = "https://github.com/chukwunwike/resolute/issues"
+Homepage = "https://github.com/chukwunwike/explicit_result"
+Repository = "https://github.com/chukwunwike/explicit_result"
+Documentation = "https://github.com/chukwunwike/explicit_result#readme"
+Issues = "https://github.com/chukwunwike/explicit_result/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -59,7 +59,7 @@ asyncio_mode = "auto"
 
 [tool.coverage.run]
 branch = true
-source = ["resolute"]
+source = ["explicit_result"]
 
 [tool.coverage.report]
 show_missing = true
@@ -70,4 +70,4 @@ strict = true
 
 
 [tool.hatch.build.targets.wheel]
-packages = ["resolute"]
+packages = ["explicit_result"]

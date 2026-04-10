@@ -1,13 +1,13 @@
 """
-resolute
+explicit_result
 ~~~~~~~~~
 Result and Option types for Python.
 
 Zero dependencies. Fully typed. Python 3.9+.
 
-    from resolute import Ok, Err, Result, Some, Nothing, Option
-    from resolute import safe, safe_async
-    from resolute import collect, collect_all, partition, transpose
+    from explicit_result import Ok, Err, Result, Some, Nothing, Option
+    from explicit_result import safe, safe_async
+    from explicit_result import collect, collect_all, partition, transpose
 
 Quick start:
 
@@ -120,6 +120,6 @@ __all__ = [
 ]
 
 __version__ = "0.3.1"
-__author__ = "resolute contributors"
+__author__ = "explicit_result contributors"
 __license__ = "MIT"
 

@@ -6,7 +6,7 @@ that the library behaves as expected in common scenarios.
 
 from typing import Union
 import pytest
-from resolute import Ok, Err, Result, Some, Nothing, Option, safe, UnwrapError
+from explicit_result import Ok, Err, Result, Some, Nothing, Option, safe, UnwrapError
 
 
 # 1. CORE RESULT BEHAVIOR

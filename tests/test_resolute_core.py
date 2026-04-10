@@ -1,6 +1,6 @@
-# tests/test_resolute_core.py
+# tests/test_explicit_result_core.py
 """
-Comprehensive pytest suite for the resolute library.
+Comprehensive pytest suite for the explicit_result library.
 Tests Result[T, E], Option[T], decorators, and combinators.
 """
 from __future__ import annotations
@@ -8,7 +8,7 @@ from __future__ import annotations
 import pytest
 from typing import Callable, Generic, TypeVar
 
-from resolute import (
+from explicit_result import (
     Result, Ok, Err,
     Option, Some, Nothing,
     safe, safe_async, do, do_option,
@@ -478,7 +478,7 @@ class TestEdgeCases:
 
     def test_nothing_identity_across_imports(self) -> None:
         """Nothing singleton identity is preserved."""
-        from resolute import Nothing as Nothing2
+        from explicit_result import Nothing as Nothing2
         assert Nothing is Nothing2
 
     def test_nested_result_handling(self) -> None:

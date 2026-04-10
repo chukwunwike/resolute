@@ -1,10 +1,10 @@
 """
 tests/test_typing.py
-Static type-checking assertions for resolute using `mypy` or `pyright`.
+Static type-checking assertions for explicit_result using `mypy` or `pyright`.
 These tests check that generics resolve correctly.
 """
 from typing_extensions import assert_type
-from resolute import Ok, Err, Result, Some, Nothing, Option, safe
+from explicit_result import Ok, Err, Result, Some, Nothing, Option, safe
 
 def test_result_types() -> None:
     # Basic creation

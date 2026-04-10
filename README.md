@@ -1,7 +1,7 @@
 # explicit-result
 <!--   
 -->
-[![Tests](https://github.com/chukwunwike/resolute/actions/workflows/tests.yml/badge.svg)](https://github.com/chukwunwike/resolute/actions/workflows/tests.yml)
+[![Tests](https://github.com/chukwunwike/explicit_result/actions/workflows/tests.yml/badge.svg)](https://github.com/chukwunwike/explicit_result/actions/workflows/tests.yml)
 
 
 
@@ -11,9 +11,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Typed](https://img.shields.io/badge/typed-yes-brightgreen.svg)](https://peps.python.org/pep-0561/)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)]()
-[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://chukwunwike.github.io/resolute/)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://chukwunwike.github.io/explicit_result/)
 
-### [Read the Full Documentation here](https://chukwunwike.github.io/resolute/)
+### [Read the Full Documentation here](https://chukwunwike.github.io/explicit_result/)
 
 ---
 
@@ -22,7 +22,7 @@ Python functions lie. A function typed as `-> int` might return an integer, rais
 `explicit-result` fixes this by making errors **visible in the function signature itself**.
 
 ```python
-from resolute import Ok, Err, Result
+from explicit_result import Ok, Err, Result
 
 def divide(a: float, b: float) -> Result[float, str]:
     if b == 0:
@@ -44,7 +44,7 @@ The signature `Result[float, str]` is a contract: *"I will give you either a flo
 - [Core Concepts](#core-concepts)
   - [Why not exceptions?](#why-not-exceptions)
   - [Why not returning None?](#why-not-returning-none)
-  - [The explicit-result philosophy](#the-resolute-philosophy)
+  - [The explicit-result philosophy](#the-explicit_result-philosophy)
 - [Safety & Reliability (v0.3.1)](#safety--reliability-v031)
 - [Result\[T, E\]](#resultt-e)
   - [Creating Results](#creating-results)
@@ -113,7 +113,7 @@ For Python 3.10+ you get full structural pattern matching support automatically.
 ## Quick Start
 
 ```python
-from resolute import Ok, Err, Result, Some, Nothing, Option, safe
+from explicit_result import Ok, Err, Result, Some, Nothing, Option, safe
 
 # --- Result: a value or an error ---
 
@@ -194,13 +194,13 @@ config = find_config("/etc/app.conf")
 
 ### The explicit-result philosophy
 
-`resolute` is built on three ideas:
+`explicit_result` is built on three ideas:
 
 **1. Errors should be part of the contract.**
 A function that can fail should declare it in its return type. `Result[User, DatabaseError]` says exactly what can happen. Callers must handle both cases to get the value.
 
 **2. The API should feel native to Python.**
-`resolute` is not a Haskell or Rust port. Every method name, every pattern, and every design choice was made to feel natural in Python code.
+`explicit_result` is not a Haskell or Rust port. Every method name, every pattern, and every design choice was made to feel natural in Python code.
 
 **3. Adopt incrementally.**
 You can use `Result` in one module and plain exceptions in another. You can wrap existing exception-throwing code with `@safe`. You do not need to rewrite your entire codebase to benefit.
@@ -214,7 +214,7 @@ You can use `Result` in one module and plain exceptions in another. You can wrap
 ### Creating Results
 
 ```python
-from resolute import Ok, Err, Result
+from explicit_result import Ok, Err, Result
 
 # Success
 r: Result[int, str] = Ok(42)
@@ -504,7 +504,7 @@ For cases where absence is caused by a failure you want to explain, use `Result`
 ### Creating Options
 
 ```python
-from resolute import Some, Nothing, Option
+from explicit_result import Some, Nothing, Option
 
 # Wrapping a value
 o: Option[int] = Some(42)
@@ -689,7 +689,7 @@ def get_profile():    # ← no annotation = no narrowing inside body
 ```
 
 ```python
-from resolute import do, Ok, Err, Result
+from explicit_result import do, Ok, Err, Result
 
 def fetch_user() -> Result[dict, str]: ...
 def fetch_profile(uid: int) -> Result[dict, str]: ...
@@ -724,7 +724,7 @@ def get_profile():    # ← no annotation = no narrowing inside body
 ```
 
 ```python
-from resolute import do_option, Some, Nothing, Option
+from explicit_result import do_option, Some, Nothing, Option
 
 @do_option()
 def get_leader_email(user_id: int) -> Option[str]:
@@ -738,10 +738,10 @@ def get_leader_email(user_id: int) -> Option[str]:
 
 ## Error Context
 
-When an error propagates up the call stack, you often want to add context to explain *where* the error happened, without losing the original root cause. `resolute` provides `.context()` and `.with_context()`.
+When an error propagates up the call stack, you often want to add context to explain *where* the error happened, without losing the original root cause. `explicit_result` provides `.context()` and `.with_context()`.
 
 ```python
-from resolute import Ok, Err, Result
+from explicit_result import Ok, Err, Result
 
 def read_file(path: str) -> Result[str, str]:
     return Err("Permission denied")
@@ -817,10 +817,10 @@ You can control traceback verbosity via the `RESOLUTE_VERBOSE_ERROR` environment
 
 ### @safe
 
-The `@safe` decorator wraps a function that might raise exceptions and converts it into a `Result`-returning function. It is the bridge between the existing Python ecosystem (which uses exceptions) and `resolute`-style code.
+The `@safe` decorator wraps a function that might raise exceptions and converts it into a `Result`-returning function. It is the bridge between the existing Python ecosystem (which uses exceptions) and `explicit_result`-style code.
 
 ```python
-from resolute import safe
+from explicit_result import safe
 
 @safe(catch=ValueError)
 def parse_int(s: str) -> int:
@@ -849,7 +849,7 @@ def lookup_and_parse(data: dict, key: str) -> int:
 The async equivalent of `@safe`. Wraps an `async def` function.
 
 ```python
-from resolute import safe_async
+from explicit_result import safe_async
 
 @safe_async(catch=ConnectionError)
 async def fetch_data(url: str) -> bytes:
@@ -909,7 +909,7 @@ def intentionally_broad():
 
 ## Async Helpers
 
-Mixing sync `Result` methods with `async` functions can feel clunky if you have to `await` inside `.and_then()` closures. `resolute` bridges this gap with its async helpers.
+Mixing sync `Result` methods with `async` functions can feel clunky if you have to `await` inside `.and_then()` closures. `explicit_result` bridges this gap with its async helpers.
 
 **`from_awaitable(awaitable)`** — Awaits an awaitable and wraps expected exceptions in `Result`.
 
@@ -919,7 +919,7 @@ Mixing sync `Result` methods with `async` functions can feel clunky if you have 
 
 ```python
 import asyncio
-from resolute import Ok, Err, Result, and_then_async
+from explicit_result import Ok, Err, Result, and_then_async
 
 async def fetch_user(uid: int) -> Result[dict, str]: ...
 async def fetch_posts(user: dict) -> Result[list, str]: ...
@@ -940,7 +940,7 @@ Combinators are higher-order functions for working with collections of `Result` 
 Turns an iterable of `Result` values into a single `Result` containing a list. Returns `Ok([...])` if all results are Ok. Returns the **first** Err encountered and stops immediately.
 
 ```python
-from resolute import collect
+from explicit_result import collect
 
 collect([Ok(1), Ok(2), Ok(3)])          # Ok([1, 2, 3])
 collect([Ok(1), Err("bad"), Ok(3)])     # Err("bad")  — stops here
@@ -958,7 +958,7 @@ Use `collect` when you want to run multiple operations and either get all values
 Like `collect`, but gathers **all** errors instead of stopping at the first one. Returns `Ok([...])` if all results are Ok, or `Err([error1, error2, ...])` containing every error found.
 
 ```python
-from resolute import collect_all
+from explicit_result import collect_all
 
 collect_all([Ok(1), Err("a"), Ok(3), Err("b")])
 # Err(["a", "b"])
@@ -976,7 +976,7 @@ Use `collect_all` for form validation, where you want to report every invalid fi
 Splits an iterable of `Result` values into two separate lists: one of Ok values and one of Err values.
 
 ```python
-from resolute import partition
+from explicit_result import partition
 
 oks, errs = partition([Ok(1), Err("a"), Ok(2), Err("b"), Ok(3)])
 # oks  = [1, 2, 3]
@@ -992,7 +992,7 @@ No values are lost. Every Result ends up in exactly one list.
 Turns an iterable of `Option` values into a single `Option` containing a list. Returns `Some([...])` if all options are Some. Returns `Nothing` if any option is Nothing.
 
 ```python
-from resolute import sequence
+from explicit_result import sequence
 
 sequence([Some(1), Some(2), Some(3)])   # Some([1, 2, 3])
 sequence([Some(1), Nothing, Some(3)])   # Nothing
@@ -1006,7 +1006,7 @@ sequence([])                            # Some([])
 Converts `Option[Result[T, E]]` into `Result[Option[T], E]`.
 
 ```python
-from resolute import transpose
+from explicit_result import transpose
 
 transpose(Some(Ok(42)))      # Ok(Some(42))
 transpose(Some(Err("bad")))  # Err("bad")
@@ -1020,7 +1020,7 @@ transpose(Nothing)           # Ok(Nothing)
 The inverse of `transpose`. Converts `Result[Option[T], E]` into `Option[Result[T, E]]`.
 
 ```python
-from resolute import transpose_result
+from explicit_result import transpose_result
 
 transpose_result(Ok(Some(42)))  # Some(Ok(42))
 transpose_result(Ok(Nothing))   # Nothing
@@ -1034,7 +1034,7 @@ transpose_result(Err("bad"))    # Some(Err("bad"))
 Flattens a nested `Result[Result[T, E], E]` into `Result[T, E]`.
 
 ```python
-from resolute import flatten_result
+from explicit_result import flatten_result
 
 flatten_result(Ok(Ok(42)))      # Ok(42)
 flatten_result(Ok(Err("bad")))  # Err("bad")
@@ -1048,7 +1048,7 @@ flatten_result(Err("outer"))    # Err("outer")
 ### Configuration parsing
 
 ```python
-from resolute import Ok, Err, Result, collect_all
+from explicit_result import Ok, Err, Result, collect_all
 import os
 
 def require_env(key: str) -> Result[str, str]:
@@ -1095,7 +1095,7 @@ match config:
 ### Form validation
 
 ```python
-from resolute import Ok, Err, Result, collect_all
+from explicit_result import Ok, Err, Result, collect_all
 from dataclasses import dataclass
 
 @dataclass
@@ -1157,7 +1157,7 @@ if result.is_err():
 ### Database queries
 
 ```python
-from resolute import Ok, Err, Result, Option, Some, Nothing, safe
+from explicit_result import Ok, Err, Result, Option, Some, Nothing, safe
 
 # Wrap the ORM call to convert exceptions into Results
 @safe(catch=(DatabaseError, TimeoutError))
@@ -1184,13 +1184,13 @@ def handle_profile_request(user_id: int) -> Response:
 
 ### FastAPI Integration
 
-When building REST APIs, you often need to unwrap a `Result` or `Option` and immediately raise an HTTP exception if it failed/is missing. `resolute` provides a non-intrusive integration for this:
+When building REST APIs, you often need to unwrap a `Result` or `Option` and immediately raise an HTTP exception if it failed/is missing. `explicit_result` provides a non-intrusive integration for this:
 
 ```python
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from resolute import Result, Ok, Err
-from resolute.integrations.fastapi import unwrap_or_http
+from explicit_result import Result, Ok, Err
+from explicit_result.integrations.fastapi import unwrap_or_http
 
 app = FastAPI()
 
@@ -1215,7 +1215,7 @@ The integration handles both `Result` and `Option` values seamlessly.
 
 ```python
 import asyncio
-from resolute import Ok, Err, Result, safe_async
+from explicit_result import Ok, Err, Result, safe_async
 
 @safe_async(catch=(aiohttp.ClientError, asyncio.TimeoutError))
 async def _http_get(url: str) -> aiohttp.ClientResponse:
@@ -1250,7 +1250,7 @@ async def main():
 ### Chained lookups
 
 ```python
-from resolute import Some, Nothing, Option
+from explicit_result import Some, Nothing, Option
 
 users    = {1: {"name": "Archy", "dept_id": 10}}
 depts    = {10: {"name": "Engineering", "lead_id": 2}}
@@ -1323,7 +1323,7 @@ The table below summarises the boundary:
 
 ## Type System Integration
 
-`resolute` ships a `py.typed` marker file (PEP 561), which tells mypy and pyright that this package provides its own type information. No plugins, no configuration, no extra installation required.
+`explicit_result` ships a `py.typed` marker file (PEP 561), which tells mypy and pyright that this package provides its own type information. No plugins, no configuration, no extra installation required.
 
 **With mypy:**
 
@@ -1427,11 +1427,11 @@ r.map(str).map_err(str.upper)
 
 ## FAQ
 
-**Can I use `resolute` alongside existing exception-based code?**
+**Can I use `explicit_result` alongside existing exception-based code?**
 
-Yes. The `@safe` and `@safe_async` decorators exist precisely for this purpose. You can wrap any exception-throwing function and convert it to a `Result`-returning one. You do not need to adopt `resolute` everywhere at once.
+Yes. The `@safe` and `@safe_async` decorators exist precisely for this purpose. You can wrap any exception-throwing function and convert it to a `Result`-returning one. You do not need to adopt `explicit_result` everywhere at once.
 
-**Does `resolute` work with async code?**
+**Does `explicit_result` work with async code?**
 
 Yes. Use `@safe_async` for async functions. `Result` and `Option` themselves are synchronous data types — they can hold `Awaitable` values like any other value.
 
@@ -1439,7 +1439,7 @@ Yes. Use `@safe_async` for async functions. `Result` and `Option` themselves are
 
 Python 3.9 and later. Pattern matching (the `match` statement) requires Python 3.10+ but is not required to use the library — it is an optional convenience.
 
-**Is `resolute` thread-safe?**
+**Is `explicit_result` thread-safe?**
 
 `Ok`, `Err`, `Some`, and `Nothing` are all immutable after construction. The `Nothing` singleton is created at import time. There are no shared mutable state issues.
 
@@ -1462,10 +1462,10 @@ Because `Exception` catches `AttributeError`, `IndexError`, `TypeError`, `NameEr
 Resolute provides native support for modern Python frameworks.
 
 ### FastAPI
-Use `resolute.integrations.fastapi.unwrap_or_http` to cleanly convert `Result` or `Option` values into `HTTPException` responses.
+Use `explicit_result.integrations.fastapi.unwrap_or_http` to cleanly convert `Result` or `Option` values into `HTTPException` responses.
 
 ```python
-from resolute.integrations.fastapi import unwrap_or_http
+from explicit_result.integrations.fastapi import unwrap_or_http
 
 @app.get("/users/{id}")
 def read_user(id: int):
@@ -1479,7 +1479,7 @@ def read_user(id: int):
 
 ```python
 from pydantic import BaseModel
-from resolute import Option, Result, Nothing
+from explicit_result import Option, Result, Nothing
 
 class UserProfile(BaseModel):
     username: str

@@ -1,5 +1,5 @@
 """
-resolute.integrations.fastapi
+explicit_result.integrations.fastapi
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 FastAPI helpers for converting Result/Option to HTTP responses.
 
@@ -13,7 +13,7 @@ try:
 except ImportError:
     raise ImportError(
         "FastAPI is required for this integration. "
-        "Install it with: pip install resolute[fastapi]  or  pip install fastapi"
+        "Install it with: pip install explicit_result[fastapi]  or  pip install fastapi"
     )
 
 from .._result import Result

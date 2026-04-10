@@ -1,7 +1,7 @@
 """
-resolute._exceptions
+explicit_result._exceptions
 ~~~~~~~~~~~~~~~~~~~~~
-Custom exceptions raised by resolute internals.
+Custom exceptions raised by explicit_result internals.
 """
 
 from typing import Any

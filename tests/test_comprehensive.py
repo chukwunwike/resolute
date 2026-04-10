@@ -1,5 +1,5 @@
 """
-Comprehensive pytest tests for the `resolute` library.
+Comprehensive pytest tests for the `explicit_result` library.
 
 Tested features:
 - Result combinators: collect, partition
@@ -12,7 +12,7 @@ Tested features:
 
 import pytest
 from typing import List, Tuple
-from resolute import (
+from explicit_result import (
     Ok, Err, Result, Option, Some, Nothing,
     collect, partition,
     safe, safe_async, do, do_option,

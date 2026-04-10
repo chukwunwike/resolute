@@ -1,9 +1,9 @@
 """
-Service layer — wraps the raw database module with resolute.
+Service layer — wraps the raw database module with explicit_result.
 This is where @safe converts real exceptions into Result types.
 """
 
-from resolute import safe, Ok, Err, Result, Some, Nothing, Option
+from explicit_result import safe, Ok, Err, Result, Some, Nothing, Option
 from integration_app import database
 
 

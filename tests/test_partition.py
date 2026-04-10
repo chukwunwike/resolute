@@ -3,9 +3,9 @@ from typing import List, Tuple
 
 import pytest
 
-from resolute import Ok, Err
-from resolute._combinators import partition
-from resolute._exceptions import UnwrapError
+from explicit_result import Ok, Err
+from explicit_result._combinators import partition
+from explicit_result._exceptions import UnwrapError
 
 
 def generate_mixed_results(n: int, fail_ratio: float = 0.3):

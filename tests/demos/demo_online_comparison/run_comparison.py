@@ -1,7 +1,7 @@
 import sys
 import os
 
-# Add root directory to path for resolute
+# Add root directory to path for explicit_result
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 print("="*60)

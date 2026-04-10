@@ -8,10 +8,10 @@ from pydantic import BaseModel, ValidationError
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from resolute import Ok, Err, Result, Option, Some, Nothing, safe, safe_async
-from resolute.integrations.fastapi import unwrap_or_http
-from resolute._context import ContextError
-from resolute._combinators import partition
+from explicit_result import Ok, Err, Result, Option, Some, Nothing, safe, safe_async
+from explicit_result.integrations.fastapi import unwrap_or_http
+from explicit_result._context import ContextError
+from explicit_result._combinators import partition
 
 # ============================================================================
 # Test 1: The "End-to-End FastAPI & Pydantic" Test

@@ -1,5 +1,5 @@
 """
-resolute._decorators
+explicit_result._decorators
 ~~~~~~~~~~~~~~~~~~~~~
 @safe and @safe_async decorators.
 

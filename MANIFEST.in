@@ -1,3 +1,3 @@
-include resolute/py.typed
+include explicit_result/py.typed
 include README.md
 include LICENSE

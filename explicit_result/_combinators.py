@@ -1,5 +1,5 @@
 """
-resolute._combinators
+explicit_result._combinators
 ~~~~~~~~~~~~~~~~~~~~~~
 Higher-order utilities for working with collections of Results and Options.
 

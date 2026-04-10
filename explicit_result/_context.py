@@ -1,5 +1,5 @@
 """
-resolute._context
+explicit_result._context
 ~~~~~~~~~~~~~~~~~~
 Error context propagation — wrap errors with additional context
 without losing the original cause.

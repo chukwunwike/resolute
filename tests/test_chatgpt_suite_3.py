@@ -2,10 +2,10 @@ import pytest
 import random
 from typing import List, Tuple
 
-from resolute import Ok, Err, Some, Nothing, Result, Option
-from resolute import partition, collect
-from resolute import safe, do
-from resolute import UnwrapError
+from explicit_result import Ok, Err, Some, Nothing, Result, Option
+from explicit_result import partition, collect
+from explicit_result import safe, do
+from explicit_result import UnwrapError
 
 
 class TestPartitionCombinator:

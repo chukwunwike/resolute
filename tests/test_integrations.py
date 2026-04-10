@@ -1,7 +1,7 @@
 import pytest
 from pydantic import BaseModel, Field, ValidationError
-from resolute import Ok, Err, Some, Nothing, Option, Result
-from resolute.integrations.fastapi import unwrap_or_http
+from explicit_result import Ok, Err, Some, Nothing, Option, Result
+from explicit_result.integrations.fastapi import unwrap_or_http
 from fastapi import HTTPException
 
 # Pydantic Model for testing

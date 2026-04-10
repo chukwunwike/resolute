@@ -13,7 +13,7 @@ from typing import List, Dict, Optional
 import random
 import time
 
-from resolute import Ok, Err, Result, Some, Nothing, Option, safe, collect
+from explicit_result import Ok, Err, Result, Some, Nothing, Option, safe, collect
 
 # --- 1. Domain Models ---
 

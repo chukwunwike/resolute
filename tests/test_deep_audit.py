@@ -4,11 +4,11 @@ Covers Bugs 2, 3, 4, 5, and 6 from the implementation plan.
 """
 import pytest
 import asyncio
-from resolute import (
+from explicit_result import (
     Ok, Err, Result, Some, Nothing, Option,
     do, do_option, safe, safe_async, from_awaitable,
 )
-from resolute._exceptions import SafeDecoratorError
+from explicit_result._exceptions import SafeDecoratorError
 
 
 # ───────────────────────────────────────────────────────────────────────

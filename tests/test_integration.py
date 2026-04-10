@@ -1,13 +1,13 @@
 """
 tests/test_integration.py
-Mock frameworks showing that `resolute` works flawlessly within 
+Mock frameworks showing that `explicit_result` works flawlessly within 
 ecosystems like FastAPI and Pydantic.
 """
 from typing import Any
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
-from resolute import Ok, Err, Result
+from explicit_result import Ok, Err, Result
 
 app = FastAPI()
 

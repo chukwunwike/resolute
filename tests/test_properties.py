@@ -1,10 +1,10 @@
 """
 tests/test_properties.py
-Property-based tests for resolute Result and Option using Hypothesis.
+Property-based tests for explicit_result Result and Option using Hypothesis.
 Tests Monad laws (Left Identity, Right Identity, Associativity).
 """
 from hypothesis import given, strategies as st
-from resolute import Ok, Err, Result, Some, Nothing, Option
+from explicit_result import Ok, Err, Result, Some, Nothing, Option
 
 # Strategies for generating values and errors
 val_st = st.integers() | st.text() | st.floats(allow_nan=False, allow_infinity=False)

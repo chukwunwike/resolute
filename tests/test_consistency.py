@@ -1,5 +1,5 @@
 import pytest
-from resolute import Ok, Err, Some, Nothing, Result, Option, do, do_option, flatten_option
+from explicit_result import Ok, Err, Some, Nothing, Result, Option, do, do_option, flatten_option
 
 def test_result_transpose():
     # Ok(Some) -> Some(Ok)

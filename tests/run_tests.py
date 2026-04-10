@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Standalone test runner for resolute — no pytest required.
+Standalone test runner for explicit_result — no pytest required.
 """
 import sys
 import traceback
@@ -10,7 +10,7 @@ import asyncio
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from resolute import (
+from explicit_result import (
     Ok, Err, Result, Some, Nothing, Option,
     UnwrapError, SafeDecoratorError,
     safe, safe_async,

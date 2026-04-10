@@ -1,7 +1,7 @@
 import pytest
 import asyncio
-from resolute import Some, Nothing, Option
-from resolute import from_optional_async, map_option_async, and_then_option_async
+from explicit_result import Some, Nothing, Option
+from explicit_result import from_optional_async, map_option_async, and_then_option_async
 
 @pytest.mark.asyncio
 async def test_from_optional_async():

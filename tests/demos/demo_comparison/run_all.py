@@ -2,7 +2,7 @@ import sys
 import os
 import json
 
-# Add parent directory to path to import resolute
+# Add parent directory to path to import explicit_result
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 def setup_config(content):

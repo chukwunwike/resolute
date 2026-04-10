@@ -1,6 +1,6 @@
 import json
 import os
-from resolute import Result, Ok, Err, Option, Some, Nothing, safe, do
+from explicit_result import Result, Ok, Err, Option, Some, Nothing, safe, do
 
 @safe(catch=(FileNotFoundError, json.JSONDecodeError))
 def load_config(path: str):

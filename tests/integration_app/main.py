@@ -1,16 +1,16 @@
 """
 Main entrypoint — runs 8 real-world scenarios that trigger
 actual Python exceptions across module boundaries.
-Proves resolute catches every one without a single try/except in this file.
+Proves explicit_result catches every one without a single try/except in this file.
 """
 
 import sys
 import os
 
-# Add parent directory so resolute can be imported
+# Add parent directory so explicit_result can be imported
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from resolute import collect, collect_all, partition
+from explicit_result import collect, collect_all, partition
 from integration_app.services import (
     find_user, find_product, process_payment,
     load_config, apply_discount, check_stock,
@@ -170,7 +170,7 @@ def run_all_scenarios():
     total = passed + failed
     print(f"\n  {passed}/{total} scenarios passed")
     if failed == 0:
-        print("  ALL SCENARIOS PASSED -- resolute works as intended!\n")
+        print("  ALL SCENARIOS PASSED -- explicit_result works as intended!\n")
     else:
         print(f"  {failed} SCENARIOS FAILED\n")
     

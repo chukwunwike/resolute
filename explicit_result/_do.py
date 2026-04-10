@@ -1,5 +1,5 @@
 """
-resolute._do
+explicit_result._do
 ~~~~~~~~~~~~~~
 Do-notation for Result and Option — Pythonic early returns.
 

@@ -1,11 +1,11 @@
 """
 tests/test_memory.py
 Ensures no massive memory leaks occur, particularly with exception
-tracebacks captured by `resolute` wrappers.
+tracebacks captured by `explicit_result` wrappers.
 """
 import gc
 import sys
-from resolute import safe, Err
+from explicit_result import safe, Err
 
 @safe(catch=ValueError)
 def risky_action():
