@@ -33,4 +33,4 @@ jobs:
     
     - name: Run type checks
       run: |
-        python -m mypy resolute/ --strict --python-version ${{ matrix.python-version }}
+        python -m mypy explicit_result/ --strict --python-version ${{ matrix.python-version }}
