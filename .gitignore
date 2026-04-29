@@ -25,3 +25,8 @@ coverage.xml
 *_REPORT.txt
 gh_logs.txt
 .hypothesis/
+
+.env
+
+publish_dev.py
+post_to_dev.py
